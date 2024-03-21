@@ -10,7 +10,7 @@ def create_labeled_frames(path, data_types, fs, window_size):
     Args: path: the path of the WESAD dataset.
           data_types: which data types to create frames from.
           fs: the sampling frequencies of the data types.
-          window_size: the window size of the frames for each data type.
+          window_size (seconds): the window size of the frames for each data type.
     """
     for subject in os.listdir(path):
         if not subject.endswith(".pdf"):
