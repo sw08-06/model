@@ -5,23 +5,23 @@ import numpy as np
 
 
 class DataHandler:
-    def __init__(self, path, data_types, fs, window_size, overlap):
+    def __init__(self, path, data_types, fs, window_seconds, overlap):
         """
         Initializes a DataHandler instance.
         Args: path: the path of the WESAD dataset.
               data_types: which data types to create frames from.
               fs: the sampling frequencies of the data types.
-              window_size (seconds): the window size of the frames for each data type.
+              window_seconds: the window size in seconds for each data type.
         """
         self.path = path
         self.data_types = data_types
         self.fs = fs
-        self.window_size = window_size
+        self.window_seconds = window_seconds
         self.overlap = overlap
 
     def process_data(self):
         """
-        Utilizing multithreading to process the WESAD data to create labeled frames.
+        Utilizes multithreading to process the WESAD data to create labeled frames.
         """
         subjects = [subject for subject in os.listdir(self.path) if not subject.endswith(".pdf")]
 
@@ -32,8 +32,8 @@ class DataHandler:
 
     def _create_labeled_frames(self, subject):
         """
-        Creates maximum amount of labeled frames from the WESAD dataset for a specific subject
-        in the segments of the data corresponding to stressed (label 2) and not stressed (labels 1, 3, and 4).
+        Creates labeled frames from the WESAD dataset for a specific subject in the segments of the data
+        corresponding to stressed (label 2) and not stressed (labels 1, 3, and 4).
         Args:
             subject (str): Name of the subject.
         """
@@ -50,13 +50,13 @@ class DataHandler:
                         f = self.fs[j] / 700
                         start = np.floor(label_pair[0] * f)
                         end = np.floor(label_pair[1] * f)
-                        w = self.window_size[j] * self.fs[j]
+                        window_samples = self.window_seconds[j] * self.fs[j]
                         o = self.overlap * self.fs[j]
-                        sample_skip = w - o
-                        num_frames = 1 + np.floor(end - start - w / (w - sample_skip))
+                        sample_skip = window_samples - o
+                        num_frames = 1 + np.floor(end - start - window_samples / (window_samples - sample_skip))
 
                         for j in range(int(num_frames)):
-                            frame = data["signal"]["wrist"][data_type][int(start) : int(end)][int(j * sample_skip) : int(w + j * sample_skip)]
+                            frame = data["signal"]["wrist"][data_type][int(start) : int(end)][int(j * sample_skip) : int(window_samples + j * sample_skip)]
 
                             os.makedirs(os.path.join("data", "frames", subject, data_type), exist_ok=True)
                             np.save(
@@ -83,10 +83,10 @@ class DataHandler:
 
 if __name__ == "__main__":
     dataHandler = DataHandler(
-        path="data/WESAD",
+        path=os.path.join("data", "WESAD"),
         data_types=["BVP", "EDA", "TEMP"],
         fs=[64, 4, 4],
-        window_size=[60, 60, 60],
+        window_seconds=[60, 60, 60],
         overlap=0.25,
     )
 
