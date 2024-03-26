@@ -5,7 +5,7 @@ import numpy as np
 
 
 class DataHandler:
-    def __init__(self, path, data_types, fs, window_seconds, overlap):
+    def __init__(self, path, data_types, fs, window_seconds, overlap_seconds):
         """
         Initializes a DataHandler instance.
         Args: path: the path of the WESAD dataset.
@@ -17,7 +17,7 @@ class DataHandler:
         self.data_types = data_types
         self.fs = fs
         self.window_seconds = window_seconds
-        self.overlap = overlap
+        self.overlap_seconds = overlap_seconds
 
     def process_data(self):
         """
@@ -27,7 +27,6 @@ class DataHandler:
 
         with ThreadPoolExecutor(max_workers=os.cpu_count()) as executor:
             for subject in subjects:
-                print(subject)
                 executor.submit(self._create_labeled_frames, subject)
 
     def _create_labeled_frames(self, subject):
@@ -47,13 +46,13 @@ class DataHandler:
                 for label_pair in label_indices:
                     label = 1 if label_pair == label_indices[0] else 0
                     for j, data_type in enumerate(self.data_types):
-                        f = self.fs[j] / 700
-                        start = np.floor(label_pair[0] * f)
-                        end = np.floor(label_pair[1] * f)
+                        freq_ratio = self.fs[j] / 700
+                        start = np.floor(label_pair[0] * freq_ratio)
+                        end = np.floor(label_pair[1] * freq_ratio)
                         window_samples = self.window_seconds[j] * self.fs[j]
-                        o = self.overlap * self.fs[j]
-                        sample_skip = window_samples - o
-                        num_frames = 1 + np.floor(end - start - window_samples / (window_samples - sample_skip))
+                        overlap_samples = self.overlap_seconds * self.fs[j]
+                        sample_skip = window_samples - overlap_samples
+                        num_frames = 1 + np.floor((end - start - window_samples) / sample_skip)
 
                         for j in range(int(num_frames)):
                             frame = data["signal"]["wrist"][data_type][int(start) : int(end)][int(j * sample_skip) : int(window_samples + j * sample_skip)]
@@ -87,7 +86,7 @@ if __name__ == "__main__":
         data_types=["BVP", "EDA", "TEMP"],
         fs=[64, 4, 4],
         window_seconds=[60, 60, 60],
-        overlap=0.25,
+        overlap_seconds=59.75,
     )
 
     dataHandler.process_data()
