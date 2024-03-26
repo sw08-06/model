@@ -5,8 +5,7 @@ import matplotlib.pyplot as plt
 def visualize_frames(file_paths):
     """
     Visualizes frames from the given files in subplots.
-    Args:
-        file_paths (list of str): Paths to the files containing the frame data.
+    Args: file_paths: Paths to the files containing the frame data.
     """
     _, axes = plt.subplots(nrows=2, ncols=2, figsize=(12, 8))
 
@@ -39,10 +38,11 @@ def visualize_frames(file_paths):
 
 
 if __name__ == "__main__":
-    paths = [
+    file_paths = [
         "data/frames/S17/BVP/1_BVP_0.npy",
         "data/frames/S17/BVP/1_BVP_1.npy",
         "data/frames/S17/BVP/1_BVP_2.npy",
         "data/frames/S17/BVP/1_BVP_3.npy",
     ]
-    visualize_frames(paths)
+
+    visualize_frames(file_paths)

@@ -12,6 +12,7 @@ class DataHandler:
               data_types: which data types to create frames from.
               fs: the sampling frequencies of the data types.
               window_seconds: the window size in seconds for each data type.
+              overlap_seconds: the overlap in seconds for all data types.
         """
         self.path = path
         self.data_types = data_types
@@ -33,8 +34,7 @@ class DataHandler:
         """
         Creates labeled frames from the WESAD dataset for a specific subject in the segments of the data
         corresponding to stressed (label 2) and not stressed (labels 1, 3, and 4).
-        Args:
-            subject (str): Name of the subject.
+        Args: subject: Name of the subject.
         """
         if not subject.endswith(".pdf"):
             with open(os.path.join(self.path, subject, f"{subject}.pkl"), "rb") as file:
