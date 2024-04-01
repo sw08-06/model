@@ -1,73 +1,74 @@
 import os
 import numpy as np
-import pickle
-from sklearn.preprocessing import StandardScaler
 from concurrent.futures import ThreadPoolExecutor
 
 class FramePreprocessor:
     def __init__(self, data_path, data_types, output_path, max_workers=None):
+        """
+        Initializes a FramePreprocessor instance.
+        Args: data_path (str): The path to the directory containing the data.
+              data_types (list): A list of strings representing the types of data to be processed.
+              output_path (str): The path to the directory where preprocessed data will be saved.
+              max_workers (int, optional): The maximum number of worker threads for concurrent processing.
+        """
         self.data_path = data_path
         self.data_types = data_types
         self.output_path = output_path
         self.max_workers = max_workers
 
     def load_frames(self, subject):
-        frames = {"BVP": [], "EDA": [], "TEMP": []}
-        subject_path = os.path.join(self.data_path, subject) # data\frames\subject_num        
-        
-        for data_type, _ in frames.items():
-            print("starting on data type: " + data_type)
+        """
+        Loads frames from the specified subject directory.
+        Args: subject: Name of the subject.
+        Returns: dict - A dictionary containing loaded frames, organized by label and index.
+        """
+        frames = {}
+        subject_path = os.path.join(self.data_path, subject)
+
+        for data_type in self.data_types:
+            print("loading datatype: " + data_type)
             subject_signal_path = os.path.join(subject_path, data_type)
-            print("subject datatype path: " + subject_signal_path)
-            for file_name in os.listdir(subject_signal_path):                 
+            for file_name in os.listdir(subject_signal_path):
                 if file_name.endswith(".npy"):
+                    label = int(file_name.split("_")[0])
+                    index = int(file_name.split("_")[-1].split(".")[0])
+                    #print("file: " + str(file_name) + "| label: " + str(label) + "| index: " + str(index))
                     file_path = os.path.join(subject_signal_path, file_name)
-                    print("File path: " + file_path)
-                    with open(file_path, "rb") as file:
-                        frames[data_type].append(np.load(file))
-                
+                    if (label, index) not in frames:
+                        frames[(label, index)] = {}
+                    frames[(label, index)][data_type] = np.load(file_path)
+                    #print("frame: " + str(frames[(label, index)][data_type]))
+        
         return frames
     
-    def detect_outliers():
-        pass
-
-    def normalize_frames():
-        pass
-
-    def preprocess_frames(self, subject):
-        frames = self.load_frames(subject)
-        print("All frames loaded into memory")
-        
-        # outlier detection
-        # normalize
-        
-        return frames
-
     def preprocess_subject(self, subject):
-        frames = self.preprocess_frames(subject)
-        
-        output_subject_dir = os.path.join("data", self.output_path, subject) # data\preprocessed_frames\subject_num
+        """
+        Preprocesses frames for a specific subject and saves the feature vectors.
+        Args: subject: Name of the subject.
+        """
+        frames = self.load_frames(subject)
+        print("all frames loaded.")
+        output_subject_dir = os.path.join("data", self.output_path, subject)
         os.makedirs(output_subject_dir, exist_ok=True)
+        print("output directory created.")
         
-        
-        
-        for data_type, frames_list in frames.items():
-            output_subject_signal_dir = os.path.join(output_subject_dir, data_type)
-            print("loading subject signal: " + output_subject_signal_dir)
-            os.makedirs(output_subject_signal_dir, exist_ok=True)
-            for i, frame in enumerate(frames_list):
-                output_file_path = os.path.join(output_subject_signal_dir, f"{data_type}_{i}.npy")   # TODO: Add non-stress and stress labels to file name.
-                np.save(output_file_path, frame)
-
+        for (label, index), data in frames.items():
+            print("Label: " + str(label) + "| Index: " + str(index))
+            feature_vector = np.array([(data[data_type]) for data_type in self.data_types])
+            output_file_path = os.path.join(output_subject_dir, f"{label}_FV_{index}.npy")
+            np.save(output_file_path, feature_vector)
+            print("Saved instance:", output_file_path)
 
     def preprocess_all_subjects(self):
+        """
+        Utilizes multithreading to preprocess the frames for all subjects.
+        """
         subjects = [subject for subject in os.listdir(self.data_path)]
 
         with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
-            #for subject in subjects:
-                executor.submit(self.preprocess_subject, subjects[1])
-                print("Subject" + subjects[1] + " thread started.")
-
+            for subject in subjects:
+                executor.submit(self.preprocess_subject, subject)
+                print("Subject", subject, "thread started.")
 
 
 if __name__ == "__main__":
