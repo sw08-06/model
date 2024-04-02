@@ -32,34 +32,41 @@ class FramePreprocessor:
                 if file_name.endswith(".npy"):
                     label = int(file_name.split("_")[0])
                     index = int(file_name.split("_")[-1].split(".")[0])
-                    #print("file: " + str(file_name) + "| label: " + str(label) + "| index: " + str(index))
                     file_path = os.path.join(subject_signal_path, file_name)
                     if (label, index) not in frames:
                         frames[(label, index)] = {}
                     frames[(label, index)][data_type] = np.load(file_path)
-                    #print("frame: " + str(frames[(label, index)][data_type]))
         
         return frames
     
-    def preprocess_subject(self, subject):
+    def detect_outliers(self, feature_vector):
+        pass
+        
+    def normalize_feature_vector(self, feature_vector):
+        pass
+    
+    def process_subject(self, subject):
         """
         Preprocesses frames for a specific subject and saves the feature vectors.
         Args: subject: Name of the subject.
         """
         frames = self.load_frames(subject)
+        
         print("all frames loaded.")
         output_subject_dir = os.path.join("data", self.output_path, subject)
         os.makedirs(output_subject_dir, exist_ok=True)
-        print("output directory created.")
         
         for (label, index), data in frames.items():
-            print("Label: " + str(label) + "| Index: " + str(index))
             feature_vector = np.array([(data[data_type]) for data_type in self.data_types])
+            # TODO: uncomment detect_outliers and fill out
+            #feature_vector = self.detect_outliers(feature_vector)
+            # TODO: 
+            #feature_vector = self.normalize_feature_vector(feature_vector)
+            
             output_file_path = os.path.join(output_subject_dir, f"{label}_FV_{index}.npy")
             np.save(output_file_path, feature_vector)
-            print("Saved instance:", output_file_path)
 
-    def preprocess_all_subjects(self):
+    def process_all_subjects(self):
         """
         Utilizes multithreading to preprocess the frames for all subjects.
         """
@@ -67,8 +74,7 @@ class FramePreprocessor:
 
         with ThreadPoolExecutor(max_workers=self.max_workers) as executor:
             for subject in subjects:
-                executor.submit(self.preprocess_subject, subject)
-                print("Subject", subject, "thread started.")
+                executor.submit(self.process_subject, subject)
 
 
 if __name__ == "__main__":
@@ -80,4 +86,4 @@ if __name__ == "__main__":
 
     os.makedirs(os.path.join("data", "preprocessed_frames"), exist_ok=True)
 
-    preprocessor.preprocess_all_subjects()
+    preprocessor.process_all_subjects()
