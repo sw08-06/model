@@ -8,17 +8,14 @@ class FramePreprocessor:
         Initializes a FramePreprocessor instance.
         Args: data_path (str): The path to the directory containing the data.
               data_types (list): A list of strings representing the types of data to be processed.
-              output_path (str): The path to the directory where preprocessed data will be saved.
-              max_workers (int, optional): The maximum number of worker threads for concurrent processing.
         """
         self.data_path = data_path
         self.data_types = data_types
 
     def preprocess_frames(self, subject):
         """
-        Loads frames from the specified subject directory.
+        Loads frames from the specified subject directory, preprocesses the frames, and saves them.
         Args: subject: Name of the subject.
-        Returns: dict - A dictionary containing loaded frames, organized by label and index.
         """
         for data_type in self.data_types:
             print("loading datatype: " + data_type)
