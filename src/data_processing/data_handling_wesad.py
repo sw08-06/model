@@ -66,7 +66,7 @@ class DataHandler:
                             except Exception as e:
                                 print(f"Error processing file {label}_{data_type}_{j}.npy: {e}")
 
-                    print(f"Finished creating frames of {data_type} for {subject}")
+                        print(f"Finished creating frames of {data_type} for {subject}")
 
     def _find_label_indices(self, labels):
         """
