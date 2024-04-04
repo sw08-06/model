@@ -20,7 +20,7 @@ class DataHandler:
         self.window_seconds = window_seconds
         self.overlap_seconds = overlap_seconds
 
-    def process_data(self):
+    def process_all_subjects(self):
         """
         Utilizes multithreading to process the WESAD data to create labeled frames.
         """
@@ -39,7 +39,7 @@ class DataHandler:
         if not subject.endswith(".pdf"):
             with open(os.path.join(self.path, subject, f"{subject}.pkl"), "rb") as file:
                 data = pickle.load(file, encoding="latin1")
-                print(f"Loaded pickle file of {subject}")
+                print(f"Loaded pickle file for subject: {subject}")
 
                 label_indices = self._find_label_indices(data["label"])
 
@@ -58,16 +58,19 @@ class DataHandler:
                             frame = data["signal"]["wrist"][data_type][int(start) : int(end)][int(j * sample_skip) : int(window_samples + j * sample_skip)]
 
                             os.makedirs(os.path.join("data", "frames", subject, data_type), exist_ok=True)
-                            np.save(
-                                os.path.join("data", "frames", subject, data_type, f"{label}_{data_type}_{j}.npy"),
-                                frame,
-                            )
-                            print(f"Created frame {label}_{data_type}_{j}.npy for {subject}")
+                            try:
+                                np.save(
+                                    os.path.join("data", "frames", subject, data_type, f"{label}_{data_type}_{j}.npy"),
+                                    frame,
+                                )
+                            except Exception as e:
+                                print(f"Error processing file {label}_{data_type}_{j}.npy: {e}")
+
+                        print(f"Finished creating frames of {data_type} for {subject}")
 
     def _find_label_indices(self, labels):
         """
-        Finds the start and end indices of label 2 (stressed) as well as
-        labels 1, 3, and 4 (not stressed) in a label signal.
+        Finds the start and end indices of label 2 (stressed) as well as labels 1, 3, and 4 (not stressed) in a label signal.
         Returns start and end pairs in a list with first pair being label 2 (stressed).
         """
         label_indices = []
@@ -89,4 +92,4 @@ if __name__ == "__main__":
         overlap_seconds=59.75,
     )
 
-    dataHandler.process_data()
+    dataHandler.process_all_subjects()
