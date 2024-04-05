@@ -9,20 +9,27 @@ def remove_outliers_iqr(data):
     lower_bound = np.percentile(data, 25) - 1.5 * iqr_data
     upper_bound = np.percentile(data, 75) + 1.5 * iqr_data
 
-  
-        
     cleaned_data = data[(data >= lower_bound) & (data <= upper_bound)]
     
     return cleaned_data
 
 #Replaces with neighbors
 def replace_outliers_iqr(data):
-    # Calculate IQR (Interquartile Range)
-    data_iqr = iqr(data)
+    """
+    Detects outliers using IQR and replaces them with closest valid neighbors
+
+    Modifies the data object instead of creating copy - should be used as void function
+
+    Args:
+        data - the numpy array to clean 
+    """
+    data_iqr = iqr(data, rng=(25,75)) #Adjust to appropiate sensitivity
+    print("iqr: ", data_iqr)
+    print("median: ", np.median(data))
     
     # Determine the lower and upper bounds for outlier detection
-    lower_bound = np.percentile(data, 25) - 1.5 * data_iqr
-    upper_bound = np.percentile(data, 75) + 1.5 * data_iqr
+    lower_bound = np.percentile(data, 25) - 1.5 * data_iqr #Adjust to appropiate sensitivity
+    upper_bound = np.percentile(data, 75) + 1.5 * data_iqr #Adjust to appropiate sensitivity
 
     print("Lower bound: ", lower_bound)
     print("Upper bound: ", upper_bound)
@@ -30,7 +37,7 @@ def replace_outliers_iqr(data):
     # Replace outliers with neighboring values
     for i in range(len(data)):
         if data[i] < lower_bound or data[i] > upper_bound:
-            #print("Outlier index: ", i)
+            print("outlier detected: ", i)
             distance = 1
             while True:
                 if i - distance >= 0 and data[i - distance] >= lower_bound and data[i - distance] <= upper_bound:
@@ -44,38 +51,24 @@ def replace_outliers_iqr(data):
     return data
 
     
-if __name__ == "__main__":
-        
-    data = np.load("data/frames/S2/BVP/0_BVP_4300.npy")
+if __name__ == "__main__":    
+    data = np.load("data/frames/S2/EDA/0_EDA_0.npy")
     print("---Original data [min,max]: [", min(data), ", ", max(data), "]")
-    cleaned_data_iqr = remove_outliers_iqr(data)
-    print("***Original data [min,max]: [", min(data), ", ", max(data), "]")
-    replaced_data_iqr = replace_outliers_iqr(data)
-    print(">>>Original data [min,max]: [", min(data), ", ", max(data), "]")
-
-    print("Original data: ", len(data))
-    print("IQR removed data: ", len(cleaned_data_iqr))
-    print("IQR replaced data: ", len(replaced_data_iqr))
-
-    print("Original data [min,max]: [", min(data), ", ", max(data), "]")
-    print("IQR removed data [min,max]: [", min(cleaned_data_iqr), ", ", max(cleaned_data_iqr), "]")
-    print("IQR replcaed data [min,max]: [", min(replaced_data_iqr), ", ", max(replaced_data_iqr), "]")
-
+    print("Original data length: ", len(data))
 
     plt.figure(figsize=(10, 5))
     plt.subplot(3, 1, 1)
     plt.plot(data, label='Original')
     plt.legend()
     plt.title('Original')
-    
 
-    plt.subplot(3, 1, 2)
-    plt.plot(cleaned_data_iqr, label='Removed', color='orange')
-    plt.legend()
-    plt.title('Removed')
+    replace_outliers_iqr(data)
+
+    print("Replaced data [min,max]: [", min(data), ", ", max(data), "]")
+    print("IQR replaced data length: ", len(data))
 
     plt.subplot(3, 1, 3)
-    plt.plot(replaced_data_iqr, label='Replaced', color='blue')
+    plt.plot(data, label='Replaced', color='orange')
     plt.legend()
     plt.title('Replaced')
     
