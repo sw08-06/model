@@ -5,7 +5,9 @@ import matplotlib.pyplot as plt
 
 
 def load_file(file_path):
-    """Load data from a file."""
+    """
+    Load data from a file.
+    """
     data = np.load(file_path).flatten()
 
     x = np.linspace(0.0, len(data) * 1 / 64, len(data), endpoint=False)
@@ -16,7 +18,9 @@ def load_file(file_path):
 
 
 def fourier_analysis(data, sampling_freq):
-    """Perform Fourier analysis on the data."""
+    """
+    Perform Fourier analysis on a frame.
+    """
     n = len(data)
     freq = fftfreq(n, 1 / sampling_freq)[: n // 2]
     fft_data = np.abs(fft(data)[0 : n // 2]) * 2 / n
@@ -24,7 +28,9 @@ def fourier_analysis(data, sampling_freq):
 
 
 def butterworth_filter(data, cutoff_freq, sampling_freq, order):
-    """Apply a Butterworth filter to the data."""
+    """
+    Apply a Butterworth filter to a frame.
+    """
     nyquist = 0.5 * sampling_freq
     normal_cutoff = cutoff_freq / nyquist
     b, a = butter(order, normal_cutoff, btype="low", analog=False)
@@ -33,7 +39,9 @@ def butterworth_filter(data, cutoff_freq, sampling_freq, order):
 
 
 def plot_data(original_data, filtered_data, freq, fft_data, freq2, fft_data2):
-    """Plot the original and filtered data."""
+    """
+    Plot the original and filtered data.
+    """
     plt.figure(figsize=(16, 10))
 
     # Plot original data

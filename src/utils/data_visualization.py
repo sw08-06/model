@@ -9,9 +9,6 @@ def visualize_frames(file_paths):
     """
     _, axes = plt.subplots(nrows=2, ncols=2, figsize=(12, 8))
 
-    global_min = float("inf")
-    global_max = float("-inf")
-
     for i, file_path in enumerate(file_paths):
         frame = np.load(file_path)
 
@@ -21,28 +18,19 @@ def visualize_frames(file_paths):
         ax.set_xlabel("Sample Index")
         ax.set_ylabel("Value")
         ax.grid(True)
-
-        local_min = frame.min()
-        local_max = frame.max()
-        if local_min < global_min:
-            global_min = local_min
-        if local_max > global_max:
-            global_max = local_max
-
-    for ax in axes.flat:
         ax.set_xlim(0, len(frame))
-        ax.set_ylim(global_min - 0.1, global_max + 0.1)
+        ax.set_ylim(frame.min(), frame.max())
 
     plt.tight_layout()
     plt.show()
 
 
 if __name__ == "__main__":
-    file_paths = [
-        "data/frames/S17/BVP/1_BVP_0.npy",
-        "data/frames/S17/BVP/1_BVP_1.npy",
-        "data/frames/S17/BVP/1_BVP_2.npy",
-        "data/frames/S17/BVP/1_BVP_3.npy",
+    paths = [
+        "data/frames/S5/EDA/0_EDA_0.npy",
+        "data/frames/S5/EDA/0_EDA_2319.npy",
+        "data/preprocessed_frames/S5/EDA/0_EDA_0_preprocessed.npy",
+        "data/preprocessed_frames/S5/EDA/0_EDA_2319_preprocessed.npy",
     ]
 
-    visualize_frames(file_paths)
+    visualize_frames(paths)
