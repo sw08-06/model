@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.signal import butter, filtfilt
+from scipy.signal import butter, lfilter
 from scipy.stats import iqr
 
 
@@ -11,7 +11,7 @@ def butterworth_filter(data, cutoff_freq, sampling_freq, order):
     nyquist = 0.5 * sampling_freq
     normal_cutoff = cutoff_freq / nyquist
     b, a = butter(order, normal_cutoff, btype="low", analog=False)
-    filtered_data = filtfilt(b, a, data, padlen=0)
+    filtered_data = lfilter(b, a, data)
     return filtered_data
 
 

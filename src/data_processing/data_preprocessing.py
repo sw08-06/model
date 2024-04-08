@@ -1,9 +1,8 @@
+from preprocessing_methods import butterworth_filter
 import os
-import numpy as np
 from concurrent.futures import ThreadPoolExecutor
 from functools import partial
-from preprocessing_methods import butterworth_filter
-from sklearn.preprocessing import MinMaxScaler
+import numpy as np
 
 
 class FramePreprocessor:
@@ -25,7 +24,7 @@ class FramePreprocessor:
         """
         for data_type in self.data_types:
             if data_type not in self.functions_dict:
-                continue  # Skip if no preprocessing function for this data type
+                continue
 
             print(f"Loading {data_type} for {subject}")
             subject_signal_path = os.path.join(self.data_path, subject, data_type)
@@ -34,7 +33,7 @@ class FramePreprocessor:
 
             for file_name in os.listdir(subject_signal_path):
                 file_path = os.path.join(subject_signal_path, file_name)
-                frame = np.load(file_path)
+                frame = np.load(file_path).flatten()
                 for func in self.functions_dict[data_type]:
                     frame = func(frame)
 
@@ -57,15 +56,13 @@ class FramePreprocessor:
 
 
 if __name__ == "__main__":
-    scaler = MinMaxScaler()
-
     preprocessor = FramePreprocessor(
         os.path.join("data", "frames"),
         ["BVP", "EDA", "TEMP"],
         {
-            "BVP": [partial(butterworth_filter, cutoff_freq=4, sampling_freq=64, order=5), scaler.fit_transform],
-            "EDA": [scaler.fit_transform],
-            "TEMP": [scaler.fit_transform],
+            "BVP": [partial(butterworth_filter, cutoff_freq=4, sampling_freq=64, order=4)],
+            "EDA": [],
+            "TEMP": [],
         },
     )
 

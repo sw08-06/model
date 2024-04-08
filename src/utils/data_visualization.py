@@ -27,10 +27,10 @@ def visualize_frames(file_paths):
 
 if __name__ == "__main__":
     paths = [
-        "data/frames/S5/EDA/0_EDA_0.npy",
-        "data/frames/S5/EDA/0_EDA_2319.npy",
-        "data/preprocessed_frames/S5/EDA/0_EDA_0_preprocessed.npy",
-        "data/preprocessed_frames/S5/EDA/0_EDA_2319_preprocessed.npy",
+        "data/frames/S2/BVP/0_BVP_10.npy",
+        "data/frames/S5/BVP/0_BVP_0.npy",
+        "data/preprocessed_frames/S2/BVP/0_BVP_10_preprocessed.npy",
+        "data/preprocessed_frames/S5/BVP/0_BVP_0_preprocessed.npy",
     ]
 
     visualize_frames(paths)
