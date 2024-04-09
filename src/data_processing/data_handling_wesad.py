@@ -38,59 +38,64 @@ class DataHandler:
         corresponding to stressed (label 2) and not stressed (labels 1, 3, and 4).
         Args: subject: Name of the subject.
         """
-        if not subject.endswith(".pdf"):
-            with open(os.path.join(self.path, subject, f"{subject}.pkl"), "rb") as file:
-                data = pickle.load(file, encoding="latin1")
-                print(f"Loaded pickle file for subject: {subject}")
+        with open(os.path.join(self.path, subject, f"{subject}.pkl"), "rb") as file:
+            data = pickle.load(file, encoding="latin1")
+            print(f"Loaded pickle file for subject: {subject}")
 
-                label_indices = self._find_label_indices(data["label"])
+            label_indices = self._find_label_indices(data["label"])
 
-                for label_pair in label_indices:
-                    label = 1 if label_pair == label_indices[0] else 0
-                    for j, data_type in enumerate(self.data_types):
-                        os.makedirs(os.path.join("data", "frames", "training", subject, data_type), exist_ok=True)
-                        os.makedirs(os.path.join("data", "frames", "validation", subject, data_type), exist_ok=True)
+            if self.loso_subject == subject:
+                os.makedirs(os.path.join("data", "frames", "testing", subject), exist_ok=True)
+            else:
+                os.makedirs(os.path.join("data", "frames", "training", subject), exist_ok=True)
+                os.makedirs(os.path.join("data", "frames", "validation", subject), exist_ok=True)
 
-                        if self.loso_subject == subject:
-                            os.makedirs(os.path.join("data", "frames", "testing", subject, data_type), exist_ok=True)
+            for label_pair in label_indices:
+                label = 1 if label_pair == label_indices[0] else 0
 
-                        freq_ratio = self.fs[j] / 700
-                        start = np.floor(label_pair[0] * freq_ratio)
-                        end = np.floor(label_pair[1] * freq_ratio)
-                        window_samples = self.window_seconds[j] * self.fs[j]
-                        overlap_samples = self.overlap_seconds * self.fs[j]
+                freq_ratio = self.fs[0] / 700
+                start = np.floor(label_pair[0] * freq_ratio)
+                end = np.floor(label_pair[1] * freq_ratio)
+                window_samples = self.window_seconds[0] * self.fs[0]
+                overlap_samples = self.overlap_seconds * self.fs[0]
+                sample_skip = window_samples - overlap_samples
+                num_frames = 1 + np.floor((end - start - window_samples) / sample_skip)
+
+                num_ones = num_frames * self.train_val_split
+                num_zeros = num_frames - num_ones
+                split_vec = np.concatenate((np.ones(num_ones, dtype=int), np.zeros(num_zeros, dtype=int)))
+                np.random.shuffle(split_vec)
+
+                for j in range(int(num_frames)):
+                    frame_vec = []
+                    for k, data_type in enumerate(self.data_types):
+                        window_samples = self.window_seconds[k] * self.fs[k]
+                        overlap_samples = self.overlap_seconds * self.fs[k]
                         sample_skip = window_samples - overlap_samples
-                        num_frames = 1 + np.floor((end - start - window_samples) / sample_skip)
 
-                        num_ones = num_frames * self.train_val_split
-                        num_zeros = num_frames - num_ones
-                        split_vec = np.concatenate((np.ones(num_ones, dtype=int), np.zeros(num_zeros, dtype=int)))
-                        np.random.shuffle(split_vec)
+                        frame_vec.append(data["signal"]["wrist"][data_type][int(start) : int(end)][int(j * sample_skip) : int(window_samples + j * sample_skip)])
 
-                        for j in range(int(num_frames)):
-                            frame = data["signal"]["wrist"][data_type][int(start) : int(end)][int(j * sample_skip) : int(window_samples + j * sample_skip)]
+                    try:
+                        if self.loso_subject == subject:
+                            np.save(
+                                os.path.join("data", "frames", "testing", subject, f"{label}_{j}.npy"),
+                                frame_vec,
+                            )
+                        else:
+                            if split_vec[j]:
+                                np.save(
+                                    os.path.join("data", "frames", "training", subject, f"{label}_{j}.npy"),
+                                    frame_vec,
+                                )
+                            else:
+                                np.save(
+                                    os.path.join("data", "frames", "validation", subject, f"{label}_{j}.npy"),
+                                    frame_vec,
+                                )
+                    except Exception as e:
+                        print(f"Error processing file {label}_{j}.npy: {e}")
 
-                            try:
-                                if self.loso_subject == subject:
-                                    np.save(
-                                        os.path.join("data", "frames", "testing", subject, data_type, f"{label}_{data_type}_{j}.npy"),
-                                        frame,
-                                    )
-                                else:
-                                    if split_vec[j]:
-                                        np.save(
-                                            os.path.join("data", "frames", "training", subject, data_type, f"{label}_{data_type}_{j}.npy"),
-                                            frame,
-                                        )
-                                    else:
-                                        np.save(
-                                            os.path.join("data", "frames", "validation", subject, data_type, f"{label}_{data_type}_{j}.npy"),
-                                            frame,
-                                        )
-                            except Exception as e:
-                                print(f"Error processing file {label}_{data_type}_{j}.npy: {e}")
-
-                        print(f"Finished creating frames of {data_type} for {subject}")
+                print(f"Finished creating frames for {subject}")
 
     def _find_label_indices(self, labels):
         """
