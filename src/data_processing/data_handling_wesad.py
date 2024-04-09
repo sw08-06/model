@@ -5,7 +5,7 @@ import numpy as np
 
 
 class DataHandler:
-    def __init__(self, path, data_types, fs, window_seconds, overlap_seconds):
+    def __init__(self, path, data_types, fs, window_seconds, overlap_seconds, loso_subject, train_val_split):
         """
         Initializes a DataHandler instance.
         Args: path: the path of the WESAD dataset.
@@ -19,6 +19,8 @@ class DataHandler:
         self.fs = fs
         self.window_seconds = window_seconds
         self.overlap_seconds = overlap_seconds
+        self.loso_subject = loso_subject
+        self.train_val_split = train_val_split
 
     def process_all_subjects(self):
         """
@@ -46,6 +48,12 @@ class DataHandler:
                 for label_pair in label_indices:
                     label = 1 if label_pair == label_indices[0] else 0
                     for j, data_type in enumerate(self.data_types):
+                        os.makedirs(os.path.join("data", "frames", "training", subject, data_type), exist_ok=True)
+                        os.makedirs(os.path.join("data", "frames", "validation", subject, data_type), exist_ok=True)
+
+                        if self.loso_subject == subject:
+                            os.makedirs(os.path.join("data", "frames", "testing", subject, data_type), exist_ok=True)
+
                         freq_ratio = self.fs[j] / 700
                         start = np.floor(label_pair[0] * freq_ratio)
                         end = np.floor(label_pair[1] * freq_ratio)
@@ -54,15 +62,31 @@ class DataHandler:
                         sample_skip = window_samples - overlap_samples
                         num_frames = 1 + np.floor((end - start - window_samples) / sample_skip)
 
+                        num_ones = num_frames * self.train_val_split
+                        num_zeros = num_frames - num_ones
+                        split_vec = np.concatenate((np.ones(num_ones, dtype=int), np.zeros(num_zeros, dtype=int)))
+                        np.random.shuffle(split_vec)
+
                         for j in range(int(num_frames)):
                             frame = data["signal"]["wrist"][data_type][int(start) : int(end)][int(j * sample_skip) : int(window_samples + j * sample_skip)]
 
-                            os.makedirs(os.path.join("data", "frames", subject, data_type), exist_ok=True)
                             try:
-                                np.save(
-                                    os.path.join("data", "frames", subject, data_type, f"{label}_{data_type}_{j}.npy"),
-                                    frame,
-                                )
+                                if self.loso_subject == subject:
+                                    np.save(
+                                        os.path.join("data", "frames", "testing", subject, data_type, f"{label}_{data_type}_{j}.npy"),
+                                        frame,
+                                    )
+                                else:
+                                    if split_vec[j]:
+                                        np.save(
+                                            os.path.join("data", "frames", "training", subject, data_type, f"{label}_{data_type}_{j}.npy"),
+                                            frame,
+                                        )
+                                    else:
+                                        np.save(
+                                            os.path.join("data", "frames", "validation", subject, data_type, f"{label}_{data_type}_{j}.npy"),
+                                            frame,
+                                        )
                             except Exception as e:
                                 print(f"Error processing file {label}_{data_type}_{j}.npy: {e}")
 
@@ -90,6 +114,8 @@ if __name__ == "__main__":
         fs=[64, 4, 4],
         window_seconds=[60, 60, 60],
         overlap_seconds=59.75,
+        loso_subject="S7",
+        train_val_split=0.7,
     )
 
     dataHandler.process_all_subjects()

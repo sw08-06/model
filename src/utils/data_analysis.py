@@ -8,7 +8,7 @@ def load_file(file_path):
     """
     Load data from a file.
     """
-    data = np.load(file_path)
+    data = np.load(file_path).flatten()
 
     x = np.linspace(0.0, len(data) * 1 / 64, len(data), endpoint=False)
     y = 0.2 * np.sin(10.0 * 2.0 * np.pi * x) + 0.2 * np.sin(20.0 * 2.0 * np.pi * x)
