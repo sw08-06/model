@@ -63,22 +63,17 @@ class DataHandler:
 
                 num_ones = num_frames * self.train_val_split
                 num_zeros = num_frames - num_ones
-                split_vec = np.concatenate((np.ones(num_ones, dtype=int), np.zeros(num_zeros, dtype=int)))
+                split_vec = np.concatenate((np.ones(int(num_ones), dtype=int), np.zeros(int(num_zeros), dtype=int)))
                 np.random.shuffle(split_vec)
-
-                print(num_frames)
-                print(np.sum(split_vec))
 
                 for j in range(int(num_frames)):
                     frame_vecs = [[] for _ in range(len(self.data_types))]
-                    print(frame_vecs)
                     for k, data_type in enumerate(self.data_types):
                         window_samples = self.window_seconds[k] * self.fs[k]
                         overlap_samples = self.overlap_seconds * self.fs[k]
                         sample_skip = window_samples - overlap_samples
 
-                        frame_vecs[k].append(data["signal"]["wrist"][data_type][int(start) : int(end)][int(j * sample_skip) : int(window_samples + j * sample_skip)])
-                        print(frame_vecs.shape)
+                        frame_vecs[k] = data["signal"]["wrist"][data_type][int(start) : int(end)][int(j * sample_skip) : int(window_samples + j * sample_skip)]
 
                     frame_data = np.array(frame_vecs)
 
