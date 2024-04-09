@@ -67,30 +67,30 @@ class DataHandler:
                 np.random.shuffle(split_vec)
 
                 for j in range(int(num_frames)):
-                    frame_vec = []
+                    frame_vecs = [[] for _ in range(len(self.data_types))]
                     for k, data_type in enumerate(self.data_types):
                         window_samples = self.window_seconds[k] * self.fs[k]
                         overlap_samples = self.overlap_seconds * self.fs[k]
                         sample_skip = window_samples - overlap_samples
 
-                        frame_vec.append(data["signal"]["wrist"][data_type][int(start) : int(end)][int(j * sample_skip) : int(window_samples + j * sample_skip)])
+                        frame_vecs[k].append(data["signal"]["wrist"][data_type][int(start) : int(end)][int(j * sample_skip) : int(window_samples + j * sample_skip)])
 
                     try:
                         if self.loso_subject == subject:
                             np.save(
                                 os.path.join("data", "frames", "testing", subject, f"{label}_{j}.npy"),
-                                frame_vec,
+                                np.array(frame_vecs),
                             )
                         else:
                             if split_vec[j]:
                                 np.save(
                                     os.path.join("data", "frames", "training", subject, f"{label}_{j}.npy"),
-                                    frame_vec,
+                                    np.array(frame_vecs),
                                 )
                             else:
                                 np.save(
                                     os.path.join("data", "frames", "validation", subject, f"{label}_{j}.npy"),
-                                    frame_vec,
+                                    np.array(frame_vecs),
                                 )
                     except Exception as e:
                         print(f"Error processing file {label}_{j}.npy: {e}")
