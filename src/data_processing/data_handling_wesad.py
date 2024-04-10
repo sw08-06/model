@@ -67,7 +67,7 @@ class DataHandler:
                 np.random.shuffle(split_vec)
 
                 for j in range(int(num_frames)):
-                    max_length = self._max_data_length(self.fs, self.window_seconds)
+                    max_length = self._max_data_length()
                     frame_vecs = np.empty((3, max_length))
                     for k, data_type in enumerate(self.data_types):
                         window_samples = self.window_seconds[k] * self.fs[k]
@@ -115,13 +115,12 @@ class DataHandler:
         print(f"Label indices - stressed: {label_indices[0]} - not stressed: {label_indices[1]}, {label_indices[2]}, {label_indices[3]}")
         return label_indices
 
-    def _max_data_length(self, fs, window_seconds):
+    def _max_data_length(self):
         max_length = 0
-        for i in fs:
-            temp = fs[i] * window_seconds[i]
+        for i, freq in enumerate(self.fs):
+            temp = freq * self.window_seconds[i]
             if temp > max_length:
                 max_length = temp
-
         return max_length
 
 
