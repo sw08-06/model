@@ -54,20 +54,21 @@ class DataHandler:
                 label = 1 if label_pair == label_indices[0] else 0
 
                 num_frames, _, _, _, _ = self._calculate_num_frames(self.fs[0], self.window_seconds[0], label_pair)
+                
 
-                num_ones = num_frames * self.train_val_split
-                num_zeros = num_frames - num_ones
-                split_vec = np.concatenate((np.ones(int(num_ones), dtype=int), np.zeros(int(num_zeros), dtype=int)))
+                num_ones = int(np.ceil(num_frames * self.train_val_split))
+                num_zeros = int(np.floor(num_frames - num_ones))
+                split_vec = np.concatenate((np.ones(num_ones, dtype=int), np.zeros(num_zeros, dtype=int)))
                 np.random.shuffle(split_vec)
 
                 for j in range(int(num_frames)):
-                    frame_vecs = []
+                    frame_vecs = [[], [], []]
                     for k, data_type in enumerate(self.data_types):
                         _, start, end, sample_skip, window_samples = self._calculate_num_frames(self.fs[k], self.window_seconds[k], label_pair)
 
-                        frame_vecs.append(data["signal"]["wrist"][data_type][int(start) : int(end)][int(j * sample_skip) : int(window_samples + j * sample_skip)])
+                        frame_vecs[k] = data["signal"]["wrist"][data_type][int(start) : int(end)][int(j * sample_skip) : int(window_samples + j * sample_skip)]
 
-                    frame_arrs = np.array(frame_vecs)
+                    frame_arrs = np.asarray(frame_vecs)
 
                     try:
                         if self.loso_subject == subject:
@@ -89,7 +90,7 @@ class DataHandler:
                     except Exception as e:
                         print(f"Error processing file {label}_{j}.npy: {e}")
 
-                print(f"Finished creating frames for {subject}")
+            print(f"Finished creating frames for {subject}")
 
     def _find_label_indices(self, labels):
         """
