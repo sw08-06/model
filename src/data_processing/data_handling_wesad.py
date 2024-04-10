@@ -67,32 +67,34 @@ class DataHandler:
                 np.random.shuffle(split_vec)
 
                 for j in range(int(num_frames)):
-                    frame_vecs = [[] for _ in range(len(self.data_types))]
+                    max_length = self._max_data_length(self.fs, self.window_seconds)
+                    frame_vecs = np.empty((3, max_length))
                     for k, data_type in enumerate(self.data_types):
                         window_samples = self.window_seconds[k] * self.fs[k]
                         overlap_samples = self.overlap_seconds * self.fs[k]
                         sample_skip = window_samples - overlap_samples
+                        signal_length = self.fs[k] * self.window_seconds[k]
 
-                        frame_vecs[k] = data["signal"]["wrist"][data_type][int(start) : int(end)][int(j * sample_skip) : int(window_samples + j * sample_skip)]
-
-                    frame_data = np.array(frame_vecs)
+                        frame_vecs[k, :signal_length] = data["signal"]["wrist"][data_type][int(start) : int(end)][
+                            int(j * sample_skip) : int(window_samples + j * sample_skip)
+                        ]
 
                     try:
                         if self.loso_subject == subject:
                             np.save(
                                 os.path.join("data", "frames", "testing", subject, f"{label}_{j}.npy"),
-                                frame_data,
+                                frame_vecs,
                             )
                         else:
                             if split_vec[j]:
                                 np.save(
                                     os.path.join("data", "frames", "training", subject, f"{label}_{j}.npy"),
-                                    frame_data,
+                                    frame_vecs,
                                 )
                             else:
                                 np.save(
                                     os.path.join("data", "frames", "validation", subject, f"{label}_{j}.npy"),
-                                    frame_data,
+                                    frame_vecs,
                                 )
                     except Exception as e:
                         print(f"Error processing file {label}_{j}.npy: {e}")
@@ -112,6 +114,15 @@ class DataHandler:
             label_indices.append([first_index, last_index])
         print(f"Label indices - stressed: {label_indices[0]} - not stressed: {label_indices[1]}, {label_indices[2]}, {label_indices[3]}")
         return label_indices
+
+    def _max_data_length(self, fs, window_seconds):
+        max_length = 0
+        for i in fs:
+            temp = fs[i] * window_seconds[i]
+            if temp > max_length:
+                max_length = temp
+
+        return max_length
 
 
 if __name__ == "__main__":
