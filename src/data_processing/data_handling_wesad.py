@@ -53,13 +53,7 @@ class DataHandler:
             for label_pair in label_indices:
                 label = 1 if label_pair == label_indices[0] else 0
 
-                freq_ratio = self.fs[0] / 700
-                start = np.floor(label_pair[0] * freq_ratio)
-                end = np.floor(label_pair[1] * freq_ratio)
-                window_samples = self.window_seconds[0] * self.fs[0]
-                overlap_samples = self.overlap_seconds * self.fs[0]
-                sample_skip = window_samples - overlap_samples
-                num_frames = 1 + np.floor((end - start - window_samples) / sample_skip)
+                num_frames, _, _, _, _ = self._calculate_num_frames(self.fs[0], self.window_seconds[0], label_pair)
 
                 num_ones = num_frames * self.train_val_split
                 num_zeros = num_frames - num_ones
@@ -67,34 +61,30 @@ class DataHandler:
                 np.random.shuffle(split_vec)
 
                 for j in range(int(num_frames)):
-                    max_length = self._max_data_length()
-                    frame_vecs = np.empty((3, max_length))
+                    frame_vecs = []
                     for k, data_type in enumerate(self.data_types):
-                        window_samples = self.window_seconds[k] * self.fs[k]
-                        overlap_samples = self.overlap_seconds * self.fs[k]
-                        sample_skip = window_samples - overlap_samples
-                        signal_length = self.fs[k] * self.window_seconds[k]
+                        _, start, end, sample_skip, window_samples = self._calculate_num_frames(self.fs[k], self.window_seconds[k], label_pair)
 
-                        frame_vecs[k, :signal_length] = data["signal"]["wrist"][data_type][int(start) : int(end)][
-                            int(j * sample_skip) : int(window_samples + j * sample_skip)
-                        ]
+                        frame_vecs.append(data["signal"]["wrist"][data_type][int(start) : int(end)][int(j * sample_skip) : int(window_samples + j * sample_skip)])
+
+                    frame_arrs = np.array(frame_vecs)
 
                     try:
                         if self.loso_subject == subject:
                             np.save(
                                 os.path.join("data", "frames", "testing", subject, f"{label}_{j}.npy"),
-                                frame_vecs,
+                                frame_arrs,
                             )
                         else:
                             if split_vec[j]:
                                 np.save(
                                     os.path.join("data", "frames", "training", subject, f"{label}_{j}.npy"),
-                                    frame_vecs,
+                                    frame_arrs,
                                 )
                             else:
                                 np.save(
                                     os.path.join("data", "frames", "validation", subject, f"{label}_{j}.npy"),
-                                    frame_vecs,
+                                    frame_arrs,
                                 )
                     except Exception as e:
                         print(f"Error processing file {label}_{j}.npy: {e}")
@@ -115,13 +105,15 @@ class DataHandler:
         print(f"Label indices - stressed: {label_indices[0]} - not stressed: {label_indices[1]}, {label_indices[2]}, {label_indices[3]}")
         return label_indices
 
-    def _max_data_length(self):
-        max_length = 0
-        for i, freq in enumerate(self.fs):
-            temp = freq * self.window_seconds[i]
-            if temp > max_length:
-                max_length = temp
-        return max_length
+    def _calculate_num_frames(self, fs, window_seconds, label_pair):
+        freq_ratio = fs / 700
+        start = np.floor(label_pair[0] * freq_ratio)
+        end = np.floor(label_pair[1] * freq_ratio)
+        window_samples = window_seconds * fs
+        overlap_samples = self.overlap_seconds * fs
+        sample_skip = window_samples - overlap_samples
+        num_frames = 1 + np.floor((end - start - window_samples) / sample_skip)
+        return num_frames, start, end, sample_skip, window_samples
 
 
 if __name__ == "__main__":
