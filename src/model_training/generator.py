@@ -3,7 +3,7 @@ import numpy as np
 import keras
 
 
-class Generator(keras.utils.Sequence):
+class Generator(keras.utils.PyDataset):
     def __init__(self, path, batch_size):
         self.path = path
         self.batch_size = batch_size
