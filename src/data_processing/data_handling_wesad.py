@@ -107,6 +107,10 @@ class DataHandler:
         return label_indices
 
     def _calculate_num_frames(self, fs, window_seconds, label_pair):
+        """
+        Calculates the number of frames that can be created from a data signal
+        given a window size in seconds and a label pair containing the interval.
+        """
         freq_ratio = fs / 700
         start = np.floor(label_pair[0] * freq_ratio)
         end = np.floor(label_pair[1] * freq_ratio)
