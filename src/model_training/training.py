@@ -1,20 +1,26 @@
-import tensorflow as tf
+import os
+import keras
 from architecture import model_v1
+from generator import Generator
 
 
 def execute_training():
-    training_data_path = ""
-    validation_data_path = ""
-    model_name = ""
+    training_data_path = os.path.join("data", "frames", "training")
+    validation_data_path = os.path.join("data", "frames", "validation")
+    model_name = "model_v1"
     batch_size = 256
     epochs = 25
 
     model = model_v1()
     model.summary()
-    model.compile(optimizer=tf.keras.optimizers.Adam(0.001), loss=tf.keras.losses.BinaryCrossentropy(), metrics=tf.keras.metrics.BinaryAccuracy())
+    model.compile(
+        optimizer=keras.optimizers.Adam(0.001),
+        loss=keras.losses.BinaryCrossentropy(),
+        metrics=keras.metrics.BinaryAccuracy(),
+    )
 
-    # training_data = Generator(training_data_path, batch_size)
-    # validation_data = Generator(validation_data_path, batch_size)
+    training_data = Generator(training_data_path, batch_size)
+    validation_data = Generator(validation_data_path, batch_size)
 
     def _scheduler(epoch, lr):
         if epoch == 12:
@@ -30,12 +36,8 @@ def execute_training():
         epochs=epochs,
         verbose=1,
         callbacks=[
-            tf.keras.callbacks.ModelCheckpoint(
-                f"models/{model_name}.h5",
-                monitor="val_binary_accuracy",
-                save_best_only=True,
-            ),
-            tf.keras.callbacks.TensorBoard(),
-            tf.keras.callbacks.LearningRateScheduler(_scheduler),
+            keras.callbacks.ModelCheckpoint(f"models/{model_name}.h5", monitor="val_binary_accuracy", save_best_only=True),
+            keras.callbacks.TensorBoard(),
+            keras.callbacks.LearningRateScheduler(_scheduler),
         ],
     )
