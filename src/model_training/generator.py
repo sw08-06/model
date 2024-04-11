@@ -26,17 +26,6 @@ class Generator(keras.utils.Sequence):
             batch_data.append(file_data)
             label = int(os.path.basename(file).split("_")[0])
             batch_labels.append(label)
-        batch_data = np.concatenate(batch_data, axis=0) #?
+        batch_data = np.array(batch_data)
         batch_labels = np.array(batch_labels)
         return batch_data, batch_labels
-
-
-if __name__ == "__main__":
-    gen = Generator(os.path.join("data", "frames", "training"), 256)
-    
-    len = gen.__len__()
-    data, labels = gen.__getitem__(0)
-    
-    print(len)
-    print(data)
-    print(labels)
