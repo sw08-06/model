@@ -1,7 +1,9 @@
+import os
 import numpy as np
 from scipy.fft import fft, fftfreq
 from scipy.signal import butter, lfilter
 import matplotlib.pyplot as plt
+import h5py
 
 
 def load_file(file_path):
@@ -80,8 +82,20 @@ def plot_data(original_data, filtered_data, freq, fft_data, freq2, fft_data2):
 
 
 if __name__ == "__main__":
-    data = load_file("data/frames/S2/BVP/1_BVP_10.npy")
-    freq, fft_data = fourier_analysis(data, sampling_freq=64)
-    filtered_data = butterworth_filter(data, cutoff_freq=4, sampling_freq=64, order=4)
-    freq2, fft_data2 = fourier_analysis(filtered_data, sampling_freq=64)
-    plot_data(data, filtered_data, freq, fft_data, freq2, fft_data2)
+    # data = load_file("data/frames/S2/BVP/1_BVP_10.npy")
+    # freq, fft_data = fourier_analysis(data, sampling_freq=64)
+    # filtered_data = butterworth_filter(data, cutoff_freq=4, sampling_freq=64, order=4)
+    # freq2, fft_data2 = fourier_analysis(filtered_data, sampling_freq=64)
+    # plot_data(data, filtered_data, freq, fft_data, freq2, fft_data2)
+
+    with h5py.File(os.path.join("data", "frames1", "training.h5"), "r") as f:
+        # Access a group in the HDF5 file
+        group = f["BVP"]
+
+        # Iterate over datasets within the group
+        for dataset_name in group:
+            dataset = group[dataset_name]
+            # Now you can work with the dataset as needed
+            print(f"Dataset Name: {dataset_name}")
+            print("Dataset Shape:", dataset.shape)
+            print("Dataset Contents:", dataset[:])  # Access the dataset values

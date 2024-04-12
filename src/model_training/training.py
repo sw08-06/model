@@ -1,6 +1,6 @@
 import os
 import keras
-from architecture import model_v1
+from model_training.architectures import model_v1
 from generator import Generator
 
 
