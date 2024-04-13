@@ -1,12 +1,20 @@
-import numpy as np
-import matplotlib.pyplot as plt
 from scipy.signal import butter, lfilter
 from scipy.stats import iqr
+import numpy as np
 
 
 def butterworth_filter(data, cutoff_freq, sampling_freq, order):
     """
-    Apply a Butterworth filter to the data.
+    Applies a Butterworth filter to the input data.
+
+    Args:
+        data (numpy.ndarray): The input data.
+        cutoff_freq (float): The cutoff frequency of the filter.
+        sampling_freq (float): The sampling frequency of the data.
+        order (int): The order of the Butterworth filter.
+
+    Returns:
+        numpy.ndarray: The filtered data.
     """
     nyquist = 0.5 * sampling_freq
     normal_cutoff = cutoff_freq / nyquist
@@ -18,7 +26,9 @@ def butterworth_filter(data, cutoff_freq, sampling_freq, order):
 def remove_outliers_iqr(data):
     """
     Detects outliers using IQR and removes them.
-    Args: data: Numpy array
+
+    Args:
+        data: Numpy array
     """
     iqr_data = iqr(data)
 
@@ -34,7 +44,9 @@ def replace_outliers_iqr(data, range_lower=25, range_upper=75):
     """
     Detects outliers using IQR and replaces them with closest valid neighbors.
     Modifies the data object instead of creating copy - should be used as void function.
-    Args: data: The numpy array to clean
+
+    Args:
+        data: The numpy array to clean
     """
     data_iqr = iqr(data, rng=(range_lower, range_upper))
     print("iqr: ", data_iqr)
@@ -60,28 +72,3 @@ def replace_outliers_iqr(data, range_lower=25, range_upper=75):
                 else:
                     distance += 1
     return data
-
-
-if __name__ == "__main__":
-    frame = np.load("data/frames/S2/EDA/0_EDA_0.npy")
-    print("---Original data [min,max]: [", min(frame), ", ", max(frame), "]")
-    print("Original data length: ", len(frame))
-
-    plt.figure(figsize=(10, 5))
-    plt.subplot(3, 1, 1)
-    plt.plot(frame, label="Original")
-    plt.legend()
-    plt.title("Original")
-
-    replace_outliers_iqr(frame)
-
-    print("Replaced data [min,max]: [", min(frame), ", ", max(frame), "]")
-    print("IQR replaced data length: ", len(frame))
-
-    plt.subplot(3, 1, 3)
-    plt.plot(frame, label="Replaced", color="orange")
-    plt.legend()
-    plt.title("Replaced")
-
-    plt.tight_layout()
-    plt.show()
