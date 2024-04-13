@@ -4,7 +4,24 @@ import keras
 import h5py
 
 
-class Generator:
+class Generator(keras.utils.PyDataset):
+    """
+    Generates batches of data from an HDF5 file.
+
+    Args:
+        path (str): Path to the HDF5 file.
+        batch_size (int): Size of each batch.
+
+    Attributes:
+        path (str): Path to the HDF5 file.
+        batch_size (int): Size of each batch.
+        data (h5py.File): The HDF5 file object.
+        data_type_groups (list): List of data type groups in the HDF5 file.
+        first_dataset_names (list): List of dataset names under the first data type group.
+        num_datasets (int): Total number of datasets in the HDF5 file.
+        random_indices (list): List of random indices used for shuffling the datasets.
+    """
+
     def __init__(self, path, batch_size):
         self.path = path
         self.batch_size = batch_size
@@ -16,9 +33,21 @@ class Generator:
         random.shuffle(self.random_indices)
 
     def __len__(self):
+        """
+        Returns the number of batches in the dataset.
+        """
         return int(np.floor(self.num_datasets / self.batch_size))
 
     def __getitem__(self, idx):
+        """
+        Generates one batch of data.
+
+        Args:
+            idx (int): Index of the batch.
+
+        Returns:
+            tuple: A tuple containing batch data and batch labels.
+        """
         batch_indices = self.random_indices[idx * self.batch_size : (idx + 1) * self.batch_size]
         batch_data = [[] for _ in self.data_type_groups]
         batch_labels = [[] for _ in self.data_type_groups]
