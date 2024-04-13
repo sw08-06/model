@@ -69,15 +69,11 @@ class DataPreprocessor:
 
 
 if __name__ == "__main__":
-
-    def testfunc(data, number, number2):
-        return data + number + number2
-
     dataPreprocessor = DataPreprocessor(
         data_path=os.path.join("data", "WESAD"),
         data_types=["BVP", "EDA", "TEMP"],
         fs=[64, 4, 4],
-        functions_dict={"BVP": [partial(testfunc, 200, 5000)], "EDA": [], "TEMP": []},
+        functions_dict={"BVP": [partial(butterworth_filter, cutoff_freq=4, sampling_freq=64, order=4)], "EDA": [], "TEMP": []},
     )
 
     dataPreprocessor.process_all_subjects()
