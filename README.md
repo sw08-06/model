@@ -48,7 +48,7 @@ To execute training, provide the following parameters:
 
 ## Utils
 The `data_analysis.py` script allows for analyzing the frames created by the `data_partioning.py` script. It provides the following:
-1. **Loading Data:** The `load_HDF5` function loads data from a specific dataset within a group in an HDF5 file. The `load_pkl` function loads data of a specific data type from a specific subject from the WESAD dataset of a preprocessed WESAD dataset.
+1. **Loading Data:** The `load_HDF5` function loads data from a specific dataset within a group in an HDF5 file. The `load_pkl` function loads data of a specific data type from a specific subject from the WESAD dataset or a preprocessed version of the WESAD dataset.
 2. **Fourier Analysis:** The `fourier_analysis` function performs Fourier analysis on a frame of data.
 3. **Preprocessing Methods:** Any preprocessing methods from `data_processing\preprocessing_methods.py` can be applied to datasets than have been loaded.
 3. **Plotting Data:** The `plot_data` function plots the original and filtered data, as well as their Fourier transforms.
