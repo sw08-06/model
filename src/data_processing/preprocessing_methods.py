@@ -5,7 +5,7 @@ import numpy as np
 
 def butterworth_filter(data, cutoff_freq, sampling_freq, order):
     """
-    Applies a Butterworth filter to the data.
+    Applies a Butterworth filter to the input data.
 
     Args:
         data (numpy.ndarray): The input data.

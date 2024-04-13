@@ -1,16 +1,17 @@
 import os
 import sys
+import pickle
 import numpy as np
 from scipy.fft import fft, fftfreq
-from scipy.signal import butter, lfilter
 import matplotlib.pyplot as plt
 import h5py
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src", "data_processing")))
+
+sys.path.append("src")
 from data_processing.preprocessing_methods import *
 
 
-def load_file(file_path, group_name, dataset_index):
+def load_HDF5(file_path, group_name, dataset_index):
     """
     Loads data from a specific dataset within a group in an HDF5 file.
 
@@ -26,6 +27,24 @@ def load_file(file_path, group_name, dataset_index):
         dataset_names = list(file[group_name].keys())
         dataset_name = dataset_names[dataset_index]
         data = file[group_name][dataset_name][:].flatten()
+
+    return data
+
+
+def load_pkl(file_path, data_type):
+    """
+    Loads data of a specific data type from a specific subject.
+
+    Args:
+        file_path (str): The path to the HDF5 file.
+        data_type (str): The type of data.
+
+    Returns:
+        numpy.ndarray: The loaded data.
+    """
+    with open(file_path, "rb") as file:
+        dataset = pickle.load(file, encoding="latin1")
+        data = dataset["signal"]["wrist"][data_type]
 
     return data
 
@@ -121,12 +140,16 @@ def visualize_frames(frames):
 
 if __name__ == "__main__":
     file_path = os.path.join("data", "frames1", "training.h5")
-
-    bvp_data = load_file(file_path, "BVP", 0).flatten()
-    eda_data = load_file(file_path, "EDA", 0).flatten()
-    temp_data = load_file(file_path, "TEMP", 0).flatten()
-
+    bvp_data = load_HDF5(file_path, "BVP", 0)
+    eda_data = load_HDF5(file_path, "EDA", 0)
+    temp_data = load_HDF5(file_path, "TEMP", 0)
     visualize_frames([bvp_data, eda_data, temp_data])
+
+    file_path = os.path.join("data", "WESAD_preprocessed1", "S2", "S2.pkl")
+    bvp_data_pkl = load_pkl(file_path, "BVP")
+    eda_data_pkl = load_pkl(file_path, "EDA")
+    temp_data_pkl = load_pkl(file_path, "TEMP")
+    visualize_frames([bvp_data_pkl, eda_data_pkl, temp_data_pkl])
 
     sampling_freq = 64
     filtered_data = butterworth_filter(bvp_data, cutoff_freq=4, sampling_freq=sampling_freq, order=4)
