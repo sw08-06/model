@@ -108,10 +108,41 @@ def plot_data(original_data, filtered_data, freq, fft_data, freq2, fft_data2):
     plt.show()
 
 
+def visualize_frames(frames):
+    """
+    Visualizes a list of frames.
+
+    Args:
+        frames (list of numpy.ndarray): A list containing the frames to be visualized.
+
+    Each frame is plotted as a separate subplot in a single figure. The x-axis represents
+    the sample index, and the y-axis represents the value of each sample in the frame.
+
+    """
+    _, axes = plt.subplots(nrows=3, ncols=1, figsize=(12, 8))
+
+    for i, frame in enumerate(frames):
+        ax = axes[i]
+        ax.plot(frame)
+        ax.set_title(f"Frame {i+1}")
+        ax.set_xlabel("Sample Index")
+        ax.set_ylabel("Value")
+        ax.grid(True)
+        ax.set_xlim(0, len(frame))
+        ax.set_ylim(np.min(frame), np.max(frame))
+
+    plt.tight_layout()
+    plt.show()
+
+
 if __name__ == "__main__":
     file_path = os.path.join("data", "frames1", "training.h5")
 
     bvp_data = load_file(file_path, "BVP", 0).flatten()
+    eda_data = load_file(file_path, "EDA", 0).flatten()
+    temp_data = load_file(file_path, "TEMP", 0).flatten()
+
+    visualize_frames([bvp_data, eda_data, temp_data])
 
     sampling_freq = 64
     filtered_data = butterworth_filter(bvp_data, cutoff_freq=4, sampling_freq=sampling_freq, order=4)
