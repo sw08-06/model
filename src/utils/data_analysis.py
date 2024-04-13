@@ -1,9 +1,13 @@
 import os
+import sys
 import numpy as np
 from scipy.fft import fft, fftfreq
 from scipy.signal import butter, lfilter
 import matplotlib.pyplot as plt
 import h5py
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src", "data_processing")))
+from data_processing.preprocessing_methods import *
 
 
 def load_file(file_path, group_name, dataset_index):
@@ -24,26 +28,6 @@ def load_file(file_path, group_name, dataset_index):
         data = file[group_name][dataset_name][:].flatten()
 
     return data
-
-
-def butterworth_filter(data, cutoff_freq, sampling_freq, order):
-    """
-    Applies a Butterworth filter to the data.
-
-    Args:
-        data (numpy.ndarray): The input data.
-        cutoff_freq (float): The cutoff frequency of the filter.
-        sampling_freq (float): The sampling frequency of the data.
-        order (int): The order of the Butterworth filter.
-
-    Returns:
-        numpy.ndarray: The filtered data.
-    """
-    nyquist = 0.5 * sampling_freq
-    normal_cutoff = cutoff_freq / nyquist
-    b, a = butter(order, normal_cutoff, btype="low", analog=False)
-    filtered_data = lfilter(b, a, data)
-    return filtered_data
 
 
 def fourier_analysis(data, sampling_freq):
