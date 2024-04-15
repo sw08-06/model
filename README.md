@@ -5,6 +5,14 @@ To install the required packages to run the project, use pip with the following 
 ```
 pip install -r requirements.txt
 ```
+Alternatively, build a Docker image with:
+```
+docker build -t model-training .
+```
+And then run the Docker container with:
+```
+docker run -it --gpus all model-training
+```
 
 ## Data Processing
 ### Partitioning
