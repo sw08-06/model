@@ -1,6 +1,6 @@
 import os
 import keras
-from model_training.architectures import model_v1
+from architectures import model_v1
 from generator import Generator
 
 
@@ -10,11 +10,11 @@ def execute_training(training_data_path, validation_data_path, model_name, batch
     model.compile(
         optimizer=keras.optimizers.Adam(0.001),
         loss=keras.losses.BinaryCrossentropy(),
-        metrics=keras.metrics.BinaryAccuracy(),
+        metrics=[keras.metrics.BinaryAccuracy()],
     )
 
-    training_data = Generator(training_data_path, batch_size)
-    validation_data = Generator(validation_data_path, batch_size)
+    training_data_generator = Generator(training_data_path, batch_size)
+    validation_data_generator = Generator(validation_data_path, batch_size)
 
     def _scheduler(epoch, lr):
         if epoch == 12:
@@ -26,12 +26,12 @@ def execute_training(training_data_path, validation_data_path, model_name, batch
 
     os.makedirs("models", exist_ok=True)
     model.fit(
-        x=training_data,
-        validation_data=validation_data,
+        x=training_data_generator,
+        validation_data=validation_data_generator,
         epochs=num_epochs,
         verbose=1,
         callbacks=[
-            keras.callbacks.ModelCheckpoint(f"models/{model_name}.h5", monitor="val_binary_accuracy", save_best_only=True),
+            keras.callbacks.ModelCheckpoint(f"models/{model_name}.keras", monitor="val_binary_accuracy", save_best_only=True),
             keras.callbacks.TensorBoard(),
             keras.callbacks.LearningRateScheduler(_scheduler),
         ],
@@ -40,8 +40,8 @@ def execute_training(training_data_path, validation_data_path, model_name, batch
 
 if __name__ == "__main__":
     execute_training(
-        training_data_path=os.path.join("data", "frames", "training"),
-        validation_data_path=os.path.join("data", "frames", "validation"),
+        training_data_path=os.path.join("data", "frames1", "training.h5"),
+        validation_data_path=os.path.join("data", "frames1", "validation.h5"),
         model_name="model_v1",
         batch_size=256,
         num_epochs=25,

@@ -121,7 +121,7 @@ def visualize_frames(frames):
     the sample index, and the y-axis represents the value of each sample in the frame.
 
     """
-    _, axes = plt.subplots(nrows=3, ncols=1, figsize=(12, 8))
+    _, axes = plt.subplots(nrows=len(frames), ncols=1, figsize=(12, 8))
 
     for i, frame in enumerate(frames):
         ax = axes[i]
@@ -144,14 +144,17 @@ if __name__ == "__main__":
     temp_data = load_HDF5(file_path, "TEMP", 0)
     visualize_frames([bvp_data, eda_data, temp_data])
 
-    file_path = os.path.join("data", "WESAD_preprocessed1", "S2", "S2.pkl")
-    bvp_data_pkl = load_pkl(file_path, "BVP")
-    eda_data_pkl = load_pkl(file_path, "EDA")
-    temp_data_pkl = load_pkl(file_path, "TEMP")
-    visualize_frames([bvp_data_pkl, eda_data_pkl, temp_data_pkl])
+    # file_path = os.path.join("data", "WESAD", "S2", "S2.pkl")
+    # bvp_data_pkl = load_pkl(file_path, "BVP")
+    # eda_data_pkl = load_pkl(file_path, "EDA")
+    # temp_data_pkl = load_pkl(file_path, "TEMP")
+    # with open(file_path, "rb") as file:
+    #     dataset = pickle.load(file, encoding="latin1")
+    #     labels = dataset["label"]
+    # visualize_frames([bvp_data_pkl, eda_data_pkl, temp_data_pkl, labels])
 
-    sampling_freq = 64
-    filtered_data = butterworth_filter(bvp_data, cutoff_freq=4, sampling_freq=sampling_freq, order=4)
-    freq, fft_data = fourier_analysis(bvp_data, sampling_freq)
-    freq2, fft_data2 = fourier_analysis(filtered_data, sampling_freq)
-    plot_data(bvp_data, filtered_data, freq, fft_data, freq2, fft_data2)
+    # sampling_freq = 64
+    # filtered_data = butterworth_filter(bvp_data, cutoff_freq=4, sampling_freq=sampling_freq, order=4)
+    # freq, fft_data = fourier_analysis(bvp_data, sampling_freq)
+    # freq2, fft_data2 = fourier_analysis(filtered_data, sampling_freq)
+    # plot_data(bvp_data, filtered_data, freq, fft_data, freq2, fft_data2)

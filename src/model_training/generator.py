@@ -48,14 +48,23 @@ class Generator(keras.utils.PyDataset):
         Returns:
             tuple: A tuple containing batch data and batch labels.
         """
-        batch_indices = self.random_indices[idx * self.batch_size : (idx + 1) * self.batch_size]
-        batch_data = [[] for _ in self.data_type_groups]
-        batch_labels = [[] for _ in self.data_type_groups]
-        for i, data_type in enumerate(self.data_type_groups):
-            dataset_names = list(self.data[data_type].keys())
-            for j in batch_indices:
-                batch_data[i].append(self.data[data_type][dataset_names[j]][:].flatten())
-                batch_labels[i].append(self.data[data_type][dataset_names[j]].attrs["label"])
-            batch_data[i] = np.array(batch_data[i])
-            batch_labels[i] = np.array(batch_labels[i])
-        return batch_data, batch_labels
+        batch_random_indices = self.random_indices[idx * self.batch_size : (idx + 1) * self.batch_size]
+        batch_data = []
+        batch_labels = []
+        for i in batch_random_indices:
+            data_arr = []
+            for data_type in self.data_type_groups:
+                dataset_names = list(self.data[data_type].keys())
+                data = self.data[data_type][dataset_names[i]][:]
+                data_arr.append(data)
+            label = self.data[data_type][dataset_names[i]].attrs["label"]
+            batch_labels.append(label)
+            batch_data.append(np.concatenate(data_arr))
+        return np.array(batch_data), np.array(batch_labels)[:, np.newaxis]
+
+
+if __name__ == "__main__":
+    gene = Generator("data/frames1/training.h5", 4)
+    print(gene.__getitem__(0)[0].shape)
+    print(gene.__getitem__(0)[1].shape)
+    print(gene.__getitem__(0))
