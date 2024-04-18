@@ -1,9 +1,7 @@
 from concurrent.futures import ThreadPoolExecutor
-from functools import partial
 import os
 import pickle
 import numpy as np
-from preprocessing_methods import butterworth_filter
 from hampel import hampel
 
 
@@ -74,7 +72,7 @@ if __name__ == "__main__":
         data_path=os.path.join("data", "WESAD"),
         data_types=["BVP", "EDA", "TEMP"],
         fs=[64, 4, 4],
-        functions_dict={"BVP": [], "EDA": [lambda data: hampel(data, window_size = 120, n_sigma = 3.0).filtered_data], "TEMP": []},
+        functions_dict={"BVP": [], "EDA": [lambda data: hampel(data, window_size=120, n_sigma=3.0).filtered_data], "TEMP": []},
     )
 
     dataPreprocessor.process_all_subjects()
