@@ -4,6 +4,7 @@ import os
 import pickle
 import numpy as np
 from preprocessing_methods import butterworth_filter
+from hampel import hampel
 
 
 class DataPreprocessor:
@@ -58,7 +59,7 @@ class DataPreprocessor:
                     preprocessing_funcs = self.functions_dict.get(data_type)
                     if preprocessing_funcs:
                         for preprocessing_func in preprocessing_funcs:
-                            wesad_data["signal"]["wrist"][data_type] = preprocessing_func(np.array(wesad_data["signal"]["wrist"][data_type]))
+                            wesad_data["signal"]["wrist"][data_type] = preprocessing_func(np.array(wesad_data["signal"]["wrist"][data_type][:].flatten()))
 
                 with open(os.path.join("data", f"WESAD_preprocessed{self.dir_number}", subject, f"{subject}.pkl"), "wb") as file:
                     pickle.dump(wesad_data, file)
@@ -73,7 +74,7 @@ if __name__ == "__main__":
         data_path=os.path.join("data", "WESAD"),
         data_types=["BVP", "EDA", "TEMP"],
         fs=[64, 4, 4],
-        functions_dict={"BVP": [partial(butterworth_filter, cutoff_freq=4, sampling_freq=64, order=4)], "EDA": [], "TEMP": []},
+        functions_dict={"BVP": [], "EDA": [lambda data: hampel(data, window_size = 120, n_sigma = 3.0).filtered_data], "TEMP": []},
     )
 
     dataPreprocessor.process_all_subjects()

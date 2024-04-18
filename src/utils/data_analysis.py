@@ -138,20 +138,22 @@ def visualize_frames(frames):
 
 
 if __name__ == "__main__":
-    file_path = os.path.join("data", "frames1", "training.h5")
-    bvp_data = load_HDF5(file_path, "BVP", 0)
-    eda_data = load_HDF5(file_path, "EDA", 0)
-    temp_data = load_HDF5(file_path, "TEMP", 0)
-    visualize_frames([bvp_data, eda_data, temp_data])
+    # file_path = os.path.join("data", "frames1", "training.h5")
+    # bvp_data = load_HDF5(file_path, "BVP", 0)
+    # eda_data = load_HDF5(file_path, "EDA", 0)
+    # temp_data = load_HDF5(file_path, "TEMP", 0)
+    # visualize_frames([bvp_data, eda_data, temp_data])
 
-    # file_path = os.path.join("data", "WESAD", "S2", "S2.pkl")
-    # bvp_data_pkl = load_pkl(file_path, "BVP")
-    # eda_data_pkl = load_pkl(file_path, "EDA")
-    # temp_data_pkl = load_pkl(file_path, "TEMP")
-    # with open(file_path, "rb") as file:
-    #     dataset = pickle.load(file, encoding="latin1")
-    #     labels = dataset["label"]
-    # visualize_frames([bvp_data_pkl, eda_data_pkl, temp_data_pkl, labels])
+
+    file_path_60 = os.path.join("data", "WESAD_preprocessed2", "S2", "S2.pkl")
+    file_path_120 = os.path.join("data", "WESAD_preprocessed3", "S2", "S2.pkl")
+    file_path_original = os.path.join("data", "WESAD", "S2", "S2.pkl")
+    #bvp_data_pkl = load_pkl(file_path, "BVP")
+    eda_data_pkl_60 = load_pkl(file_path_60, "EDA")
+    eda_data_pkl_120 = load_pkl(file_path_120, "EDA")
+    eda_data_pkl_original = load_pkl(file_path_original, "EDA")
+    #temp_data_pkl = load_pkl(file_path, "TEMP")
+    visualize_frames([eda_data_pkl_original, eda_data_pkl_60, eda_data_pkl_120])
 
     # sampling_freq = 64
     # filtered_data = butterworth_filter(bvp_data, cutoff_freq=4, sampling_freq=sampling_freq, order=4)
