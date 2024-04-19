@@ -138,19 +138,15 @@ def visualize_frames(frames):
 
 
 if __name__ == "__main__":
-    file_path = os.path.join("data", "frames1", "training.h5")
-    data = load_HDF5(file_path, 500)
-    visualize_frames([data[:3840], data[3840:4080], data[4080:4320]])
+    file_path = os.path.join("data", "WESAD_preprocessed1", "S2", "S2.pkl")
+    data = load_pkl(file_path, "EDA")
+    data1 = load_pkl(file_path, "BVP")
+    data2 = load_pkl(file_path, "TEMP")
+    visualize_frames([data, data1, data2])
+    print(data.shape)
+    print(data1.shape)
+    print(data2.shape)
 
-    # file_path_60 = os.path.join("data", "WESAD_preprocessed2", "S2", "S2.pkl")
-    # file_path_120 = os.path.join("data", "WESAD_preprocessed3", "S2", "S2.pkl")
-    # file_path_original = os.path.join("data", "WESAD", "S2", "S2.pkl")
-    # # bvp_data_pkl = load_pkl(file_path, "BVP")
-    # eda_data_pkl_60 = load_pkl(file_path_60, "EDA")
-    # eda_data_pkl_120 = load_pkl(file_path_120, "EDA")
-    # eda_data_pkl_original = load_pkl(file_path_original, "EDA")
-    # # temp_data_pkl = load_pkl(file_path, "TEMP")
-    # visualize_frames([eda_data_pkl_original, eda_data_pkl_60, eda_data_pkl_120])
 
     # sampling_freq = 64
     # filtered_data = butterworth_filter(bvp_data, cutoff_freq=4, sampling_freq=sampling_freq, order=4)
