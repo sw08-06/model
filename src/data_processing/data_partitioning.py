@@ -47,14 +47,6 @@ class DataPartitioner:
             os.path.join(frames_dir, "validation.h5"),
             os.path.join(frames_dir, "testing.h5"),
         ]
-        for h5_file_name in h5_file_names:
-            try:
-                if not os.path.exists(h5_file_name):
-                    with h5py.File(h5_file_name, "a") as h5_file:
-                        for data_type in self.data_types:
-                            h5_file.create_group(data_type)
-            except Exception as e:
-                print(f"Error occurred while creating HDF5 file or groups: {e}")
 
         with ThreadPoolExecutor(max_workers=15) as executor:
             for subject in subjects:
@@ -79,24 +71,27 @@ class DataPartitioner:
             with h5py.File(h5_file_names[0], "a") as h5_training, h5py.File(h5_file_names[1], "a") as h5_validation, h5py.File(h5_file_names[2], "a") as h5_testing:
                 for label_pair in label_indices:
                     label = 1 if label_pair == label_indices[0] else 0
+
                     num_frames, _, _, _, _ = self._calculate_num_frames(self.fs[0], self.window_seconds, label_pair)
-
                     split_vec = self._create_split_vec(num_frames)
-                    for i, data_type in enumerate(self.data_types):
-                        _, start, end, sample_skip, window_samples = self._calculate_num_frames(self.fs[i], self.window_seconds, label_pair)
-                        for j in range(num_frames):
-                            data_arr = wesad_data["signal"]["wrist"][data_type][int(start) : int(end)][int(j * sample_skip) : int(window_samples + j * sample_skip)]
 
-                            dataset_name = f"{subject}_frame_{index + j}"
-                            if self.loso_subject == subject:
-                                h5_testing[data_type].create_dataset(dataset_name, data=np.array(data_arr))
-                                h5_testing[data_type][dataset_name].attrs["label"] = label
-                            elif split_vec[j]:
-                                h5_training[data_type].create_dataset(dataset_name, data=np.array(data_arr))
-                                h5_training[data_type][dataset_name].attrs["label"] = label
-                            else:
-                                h5_validation[data_type].create_dataset(dataset_name, data=np.array(data_arr))
-                                h5_validation[data_type][dataset_name].attrs["label"] = label
+                    for i in range(num_frames):
+                        data_arr = []
+                        for j, data_type in enumerate(self.data_types):
+                            _, start, end, sample_skip, window_samples = self._calculate_num_frames(self.fs[j], self.window_seconds, label_pair)
+                            data_arr.append(wesad_data["signal"]["wrist"][data_type][int(start) : int(end)][int(i * sample_skip) : int(window_samples + i * sample_skip)])
+
+                        dataset_name = f"{subject}_frame_{index + i}"
+                        dataset = np.concatenate(data_arr)
+                        if self.loso_subject == subject:
+                            h5_testing.create_dataset(dataset_name, data=dataset)
+                            h5_testing[dataset_name].attrs["label"] = label
+                        elif split_vec[i]:
+                            h5_training.create_dataset(dataset_name, data=dataset)
+                            h5_training[dataset_name].attrs["label"] = label
+                        else:
+                            h5_validation.create_dataset(dataset_name, data=dataset)
+                            h5_validation[dataset_name].attrs["label"] = label
 
                     index += num_frames
 

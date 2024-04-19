@@ -10,7 +10,7 @@ sys.path.append("src")
 from data_processing.preprocessing_methods import *
 
 
-def load_HDF5(file_path, group_name, dataset_index):
+def load_HDF5(file_path, dataset_index):
     """
     Loads data from a specific dataset within a group in an HDF5 file.
 
@@ -23,9 +23,9 @@ def load_HDF5(file_path, group_name, dataset_index):
         numpy.ndarray: The loaded data.
     """
     with h5py.File(file_path, "r") as file:
-        dataset_names = list(file[group_name].keys())
-        dataset_name = dataset_names[dataset_index]
-        data = file[group_name][dataset_name][:].flatten()
+        print(len(file.keys()))
+        dataset_name = list(file.keys())[dataset_index]
+        data = file[dataset_name][:].flatten()
 
     return data
 
@@ -138,21 +138,19 @@ def visualize_frames(frames):
 
 
 if __name__ == "__main__":
-    # file_path = os.path.join("data", "frames1", "training.h5")
-    # bvp_data = load_HDF5(file_path, "BVP", 0)
-    # eda_data = load_HDF5(file_path, "EDA", 0)
-    # temp_data = load_HDF5(file_path, "TEMP", 0)
-    # visualize_frames([bvp_data, eda_data, temp_data])
+    file_path = os.path.join("data", "frames1", "training.h5")
+    data = load_HDF5(file_path, 500)
+    visualize_frames([data[:3840], data[3840:4080], data[4080:4320]])
 
-    file_path_60 = os.path.join("data", "WESAD_preprocessed2", "S2", "S2.pkl")
-    file_path_120 = os.path.join("data", "WESAD_preprocessed3", "S2", "S2.pkl")
-    file_path_original = os.path.join("data", "WESAD", "S2", "S2.pkl")
-    # bvp_data_pkl = load_pkl(file_path, "BVP")
-    eda_data_pkl_60 = load_pkl(file_path_60, "EDA")
-    eda_data_pkl_120 = load_pkl(file_path_120, "EDA")
-    eda_data_pkl_original = load_pkl(file_path_original, "EDA")
-    # temp_data_pkl = load_pkl(file_path, "TEMP")
-    visualize_frames([eda_data_pkl_original, eda_data_pkl_60, eda_data_pkl_120])
+    # file_path_60 = os.path.join("data", "WESAD_preprocessed2", "S2", "S2.pkl")
+    # file_path_120 = os.path.join("data", "WESAD_preprocessed3", "S2", "S2.pkl")
+    # file_path_original = os.path.join("data", "WESAD", "S2", "S2.pkl")
+    # # bvp_data_pkl = load_pkl(file_path, "BVP")
+    # eda_data_pkl_60 = load_pkl(file_path_60, "EDA")
+    # eda_data_pkl_120 = load_pkl(file_path_120, "EDA")
+    # eda_data_pkl_original = load_pkl(file_path_original, "EDA")
+    # # temp_data_pkl = load_pkl(file_path, "TEMP")
+    # visualize_frames([eda_data_pkl_original, eda_data_pkl_60, eda_data_pkl_120])
 
     # sampling_freq = 64
     # filtered_data = butterworth_filter(bvp_data, cutoff_freq=4, sampling_freq=sampling_freq, order=4)
