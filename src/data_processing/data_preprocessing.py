@@ -60,7 +60,7 @@ class DataPreprocessor:
                             wesad_data["signal"]["wrist"][data_type] = preprocessing_func(np.array(wesad_data["signal"]["wrist"][data_type][:].flatten()))
 
                 with open(os.path.join("data", f"WESAD_preprocessed{self.dir_number}", subject, f"{subject}.pkl"), "wb") as file:
-                    pickle.dump(wesad_data, file)
+                    pickle.dump(np.expand_dims(wesad_data, axis=1), file)
                     print(f"Saved preprocessed data for subject: {subject}")
 
         except Exception as e:
