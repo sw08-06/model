@@ -16,10 +16,8 @@ class Generator(keras.utils.PyDataset):
         path (str): Path to the HDF5 file.
         batch_size (int): Size of each batch.
         data (h5py.File): The HDF5 file object.
-        data_type_groups (list): List of data type groups in the HDF5 file.
-        first_dataset_names (list): List of dataset names under the first data type group.
+        dataset_names (list): List of dataset names.
         num_datasets (int): Total number of datasets in the HDF5 file.
-        random_indices (list): List of random indices used for shuffling the datasets.
     """
 
     def __init__(self, path, batch_size):

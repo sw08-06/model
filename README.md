@@ -28,13 +28,13 @@ The `data_partitioning.py` script is used to partion the sensor data from the wr
 If the script is rerun, a new folder is created with the frames, ensuring previously created frames are not overwritten.
 
 ### Preprocessing
-The `data_preprocessing.py` script applies preprocessing to the raw WESAD dataset and saves only the specified data types in a new directory. To use the script, provide the following:
+The `data_preprocessing.py` script applies preprocessing to the raw WESAD dataset and saves the preprocessed data in a new directory. To use the script, provide the following:
 1. Path to the WESAD dataset
 2. Data types
 3. Sampling frequencies of the data types
 3. Preprocessing functions to be applied
 
-The script allows for flexible preprocessing method application through partial function application. Each data type can have a list of preprocessing functions associated with it. The preprocessing methods are specified in `data_processing\preprocessing_methods.py` file. The preprocessed files are saved in the exact same structure as the original WESAD dataset, allowing for using the `data_partitioning.py` script on the preprocessed data. If the script is rerun, a new folder is created with the data, ensuring previously created data is not overwritten.
+The script allows for flexible preprocessing method application through partial function application. Each data type can have a list of preprocessing functions associated with it. Some preprocessing methods are specified in `data_processing\preprocessing_methods.py` file, however, other methods can also be applied. The preprocessed files are saved in the exact same structure as the original WESAD dataset, allowing for using the `data_partitioning.py` script on the preprocessed data. If the script is rerun, a new folder is created with the data, ensuring previously created data is not overwritten.
 
 ## Model Training
 The `training.py` is responsible for training machine learning models. This script automates the training process, making it easier to experiment with different model architectures and training configurations. It leverages pre-defined model architectures from `model_training\architectures.py`.
