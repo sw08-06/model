@@ -57,10 +57,10 @@ class DataPreprocessor:
                     preprocessing_funcs = self.functions_dict.get(data_type)
                     if preprocessing_funcs:
                         for preprocessing_func in preprocessing_funcs:
-                            wesad_data["signal"]["wrist"][data_type] = preprocessing_func(np.array(wesad_data["signal"]["wrist"][data_type][:].flatten()))
+                            wesad_data["signal"]["wrist"][data_type] = preprocessing_func(np.array(wesad_data["signal"]["wrist"][data_type][:].flatten()))[:, np.newaxis]
 
                 with open(os.path.join("data", f"WESAD_preprocessed{self.dir_number}", subject, f"{subject}.pkl"), "wb") as file:
-                    pickle.dump(wesad_data[:, np.newaxis], file)
+                    pickle.dump(wesad_data, file)
                     print(f"Saved preprocessed data for subject: {subject}")
 
         except Exception as e:
