@@ -167,7 +167,7 @@ class DataPartitioner:
 
 if __name__ == "__main__":
     dataPartitioner = DataPartitioner(
-        data_path=os.path.join("data", "WESAD"),
+        data_path=os.path.join("data", "WESAD_preprocessed1"),
         data_types=["BVP", "EDA", "TEMP"],
         fs=[64, 4, 4],
         window_seconds=60,
