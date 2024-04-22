@@ -11,7 +11,7 @@ docker build -t model-training .
 ```
 And then run the Docker container with:
 ```
-docker run -it --gpus all model-training
+docker run -it --gpus all -v ${PWD}/models:/app/models -v ${PWD}/logs:/app/logs -v ${PWD}/data/frames1/training.h5:/app/data/frames1/training.h5 -v ${PWD}/data/frames1/validation.h5:/app/data/frames1/validation.h5 model-training
 ```
 
 ## Data Processing
