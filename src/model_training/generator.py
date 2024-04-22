@@ -18,6 +18,7 @@ class Generator(keras.utils.PyDataset):
         data (h5py.File): The HDF5 file object.
         dataset_names (list): List of dataset names.
         num_datasets (int): Total number of datasets in the HDF5 file.
+        random_indices (list): List of random indices used for shuffling the data.
     """
 
     def __init__(self, path, batch_size):
@@ -26,6 +27,8 @@ class Generator(keras.utils.PyDataset):
         self.data = h5py.File(self.path, "r")
         self.dataset_names = list(self.data.keys())
         self.num_datasets = len(self.dataset_names)
+        self.random_indicies = [i for i in range(self.num_datasets)]
+        random.shuffle(self.random_indicies)
 
     def __len__(self):
         """
@@ -43,13 +46,12 @@ class Generator(keras.utils.PyDataset):
         Returns:
             tuple: A tuple containing batch data and batch labels.
         """
-        batch_dataset_name = self.dataset_names[idx * self.batch_size : (idx + 1) * self.batch_size]
+        batch_random_indices = self.random_indicies[idx * self.batch_size : (idx + 1) * self.batch_size]
         batch_data = []
         batch_labels = []
-        for name in batch_dataset_name:
-            batch_data.append(self.data[name][:])
-            label = self.data[name].attrs["label"]
-            batch_labels.append(label)
+        for i in batch_random_indices:
+            batch_data.append(self.data[self.dataset_names[i]][:])
+            batch_labels.append(self.data[self.dataset_names[i]].attrs["label"])
         return np.array(batch_data), np.array(batch_labels)[:, np.newaxis]
 
 
