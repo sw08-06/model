@@ -8,7 +8,8 @@ from generator import Generator
 def execute_training(training_data_path, validation_data_path, model_name, batch_size, num_epochs):
     model = model_v1()
     model.summary()
-    print("GPU available: " + tf.config.list_physical_devices("GPU"))
+    if not tf.config.list_physical_devices("GPU") == []:
+        print("------------ GPU available ------------")
 
     model.compile(
         optimizer=keras.optimizers.Adam(0.001),
