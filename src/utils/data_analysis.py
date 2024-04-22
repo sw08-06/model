@@ -138,14 +138,17 @@ def visualize_frames(frames):
 
 
 if __name__ == "__main__":
-    file_path = os.path.join("data", "WESAD_preprocessed1", "S2", "S2.pkl")
-    data = load_pkl(file_path, "EDA")
-    data1 = load_pkl(file_path, "BVP")
-    data2 = load_pkl(file_path, "TEMP")
-    visualize_frames([data, data1, data2])
-    print(data.shape)
-    print(data1.shape)
-    print(data2.shape)
+    file_path = os.path.join("data", "frames1", "training.h5")
+    data = load_HDF5(file_path, 0)
+    visualize_frames([data[:3840], data[3840:4080], data[4080:]])
+    # file_path = os.path.join("data", "WESAD_preprocessed1", "S2", "S2.pkl")
+    # data = load_pkl(file_path, "EDA")
+    # data1 = load_pkl(file_path, "BVP")
+    # data2 = load_pkl(file_path, "TEMP")
+    # visualize_frames([data, data1, data2])
+    #print(data.shape)
+    # print(data1.shape)
+    # print(data2.shape)
 
 
     # sampling_freq = 64
