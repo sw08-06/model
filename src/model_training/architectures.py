@@ -26,9 +26,6 @@ def model_v1():
     bvp_input = SliceLayer(0, 3840)(combined_input)
     eda_input = SliceLayer(3840, 4080)(combined_input)
     temp_input = SliceLayer(4080, 4320)(combined_input)
-    # bvp_input = keras.layers.Lambda(lambda x: x[:, :3840], output_shape=(3840, 1))(combined_input)
-    # eda_input = keras.layers.Lambda(lambda x: x[:, 3840:4080], output_shape=(240, 1))(combined_input)
-    # temp_input = keras.layers.Lambda(lambda x: x[:, 4080:], output_shape=(240, 1))(combined_input)
 
     bvp_conv1 = keras.layers.Conv1D(filters=40, kernel_size=16, strides=4, padding="same", activation="relu")(bvp_input)
     bvp_conv2 = keras.layers.Conv1D(filters=20, kernel_size=8, strides=4, padding="same", activation="relu")(bvp_conv1)

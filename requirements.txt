@@ -3,3 +3,4 @@ numpy
 scipy
 matplotlib
 hampel
+scikit-learn
