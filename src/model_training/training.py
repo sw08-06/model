@@ -44,7 +44,7 @@ if __name__ == "__main__":
     execute_training(
         training_data_path=os.environ.get("TRAINING_DATA_PATH"),
         validation_data_path=os.environ.get("VALIDATION_DATA_PATH"),
-        model_name="model_v1_dropout",
+        model_name="model_test",
         batch_size=256,
-        num_epochs=32,
+        num_epochs=1,
     )

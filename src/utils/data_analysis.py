@@ -22,7 +22,6 @@ def load_HDF5(file_path, dataset_index):
         numpy.ndarray: The loaded data.
     """
     with h5py.File(file_path, "r") as file:
-        print(len(file.keys()))
         dataset_name = list(file.keys())[dataset_index]
         data = file[dataset_name][:].flatten()
 
