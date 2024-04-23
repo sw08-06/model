@@ -12,7 +12,7 @@ def execute_training(training_data_path, validation_data_path, model_name, batch
 
     model.compile(
         optimizer=keras.optimizers.Adam(0.001),
-        loss=keras.losses.BinaryCrossentropy(),
+        loss=keras.losses.BinaryFocalCrossentropy(),
         metrics=[keras.metrics.BinaryAccuracy()],
     )
 
@@ -20,9 +20,9 @@ def execute_training(training_data_path, validation_data_path, model_name, batch
     validation_data_generator = Generator(validation_data_path, batch_size)
 
     def _scheduler(epoch, lr):
-        if epoch == 12:
+        if epoch == 15:
             return lr * 0.1
-        elif epoch == 20:
+        elif epoch == 25:
             return lr * 0.1
         else:
             return lr
@@ -35,7 +35,6 @@ def execute_training(training_data_path, validation_data_path, model_name, batch
         verbose=1,
         callbacks=[
             keras.callbacks.ModelCheckpoint(os.path.join(os.environ.get("MODEL_PATH"), f"{model_name}.keras"), monitor="val_binary_accuracy", save_best_only=True),
-            keras.callbacks.TensorBoard(),
             keras.callbacks.LearningRateScheduler(_scheduler),
         ],
     )
@@ -45,7 +44,7 @@ if __name__ == "__main__":
     execute_training(
         training_data_path=os.environ.get("TRAINING_DATA_PATH"),
         validation_data_path=os.environ.get("VALIDATION_DATA_PATH"),
-        model_name="model_v1",
+        model_name="model_v1_focal",
         batch_size=256,
-        num_epochs=25,
+        num_epochs=32,
     )

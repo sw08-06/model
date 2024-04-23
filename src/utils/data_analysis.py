@@ -16,7 +16,6 @@ def load_HDF5(file_path, dataset_index):
 
     Args:
         file_path (str): The path to the HDF5 file.
-        group_name (str): The name of the group containing the dataset.
         dataset_index (int): The index of the dataset within the group.
 
     Returns:
@@ -146,10 +145,9 @@ if __name__ == "__main__":
     # data1 = load_pkl(file_path, "BVP")
     # data2 = load_pkl(file_path, "TEMP")
     # visualize_frames([data, data1, data2])
-    #print(data.shape)
+    # print(data.shape)
     # print(data1.shape)
     # print(data2.shape)
-
 
     # sampling_freq = 64
     # filtered_data = butterworth_filter(bvp_data, cutoff_freq=4, sampling_freq=sampling_freq, order=4)
