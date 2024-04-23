@@ -12,7 +12,7 @@ def execute_training(training_data_path, validation_data_path, model_name, batch
 
     model.compile(
         optimizer=keras.optimizers.Adam(0.001),
-        loss=keras.losses.BinaryFocalCrossentropy(),
+        loss=keras.losses.BinaryCrossentropy(),
         metrics=[keras.metrics.BinaryAccuracy()],
     )
 
@@ -44,7 +44,7 @@ if __name__ == "__main__":
     execute_training(
         training_data_path=os.environ.get("TRAINING_DATA_PATH"),
         validation_data_path=os.environ.get("VALIDATION_DATA_PATH"),
-        model_name="model_v1_focal",
+        model_name="model_v1_dropout",
         batch_size=256,
         num_epochs=32,
     )
