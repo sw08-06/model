@@ -27,5 +27,5 @@ def evaluate_model(data, labels, model_path):
 
 if __name__ == "__main__":
     data, labels = load_data(testing_data_path=os.path.join("data", "frames1", "testing.h5"))
-    preds = evaluate_model(data, labels, model_path=os.path.join("models", "model_v1.keras"))
+    preds = evaluate_model(data, labels, model_path=os.path.join("models", "model_test.keras"))
     print(preds)
