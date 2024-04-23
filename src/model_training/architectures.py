@@ -10,6 +10,15 @@ class SliceLayer(keras.layers.Layer):
     def call(self, inputs):
         return inputs[:, self.start_index : self.end_index]
 
+    def get_config(self):
+        config = super(SliceLayer, self).get_config()
+        config.update({"start_index": self.start_index, "end_index": self.end_index})
+        return config
+
+    @classmethod
+    def from_config(cls, config):
+        return cls(**config)
+
 
 def model_v1():
     combined_input = keras.Input(shape=(4320, 1))

@@ -1,7 +1,11 @@
 import os
+import sys
 import h5py
 import numpy as np
 import keras
+
+sys.path.append("src")
+from model_training.architectures import SliceLayer
 
 
 def load_data(testing_data_path):
@@ -16,7 +20,7 @@ def load_data(testing_data_path):
 
 
 def evaluate_model(data, labels, model_path):
-    model = keras.models.load_model(model_path)
+    model = keras.models.load_model(model_path, custom_objects={"SliceLayer": SliceLayer})
     preds = model.predict(x=data, verbose=2)
     return preds
 
