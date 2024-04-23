@@ -45,12 +45,11 @@ def model_v1():
 
     concatenated = keras.layers.Concatenate()([bvp_flatten, eda_flatten, temp_flatten])
 
-    dense1 = keras.layers.Dense(units=80, activation="relu")(concatenated)
+    dense1 = keras.layers.Dense(units=100, activation="relu")(concatenated)
     dropout = keras.layers.Dropout(rate=0.75)(dense1)
-    dense2 = keras.layers.Dense(units=40, activation="relu")(dropout)
-    dense3 = keras.layers.Dense(units=20, activation="relu")(dense2)
-    dense4 = keras.layers.Dense(units=10, activation="relu")(dense3)
-    output = keras.layers.Dense(units=1, activation="sigmoid")(dense4)
+    dense2 = keras.layers.Dense(units=100, activation="relu")(dropout)
+    dense3 = keras.layers.Dense(units=100, activation="relu")(dense2)
+    output = keras.layers.Dense(units=1, activation="sigmoid")(dense3)
 
     return keras.Model(inputs=combined_input, outputs=output)
 
