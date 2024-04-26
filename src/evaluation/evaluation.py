@@ -94,7 +94,8 @@ def calculate_predictions(data, model):
 
 
 if __name__ == "__main__":
-    model = keras.models.load_model(filepath=os.path.join("models", "model_test.keras"), custom_objects={"SliceLayer": SliceLayer})
+    model_name = "model_v1_60s_focal_3.keras"
+    model = keras.models.load_model(filepath=os.path.join("models", model_name), custom_objects={"SliceLayer": SliceLayer})
     data, labels = load_data(testing_data_path=os.path.join("data", "frames1", "testing.h5"))
     preds = calculate_predictions(data, model)
 
