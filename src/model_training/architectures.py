@@ -50,10 +50,8 @@ def model_v1(window_size):
     concatenated = keras.layers.Concatenate()([bvp_flatten, eda_flatten, temp_flatten])
 
     dense1 = keras.layers.Dense(units=100, activation="relu")(concatenated)
-    dropout = keras.layers.Dropout(rate=0.75)(dense1)
-    dense2 = keras.layers.Dense(units=100, activation="relu")(dropout)
-    dense3 = keras.layers.Dense(units=100, activation="relu")(dense2)
-    output = keras.layers.Dense(units=1, activation="sigmoid")(dense3)
+    dropout = keras.layers.Dropout(rate=0.25)(dense1)
+    output = keras.layers.Dense(units=1, activation="sigmoid")(dropout)
 
     return keras.Model(inputs=combined_input, outputs=output)
 
@@ -62,7 +60,7 @@ def model_v2(window_size):
     bvp_length = window_size * 64
     eda_temp_length = window_size * 4
     total_length = bvp_length + 2 * eda_temp_length
-    
+
     combined_input = keras.Input(shape=(total_length, 1))
 
     bvp_input = SliceLayer(0, bvp_length)(combined_input)
@@ -77,7 +75,7 @@ def model_v2(window_size):
 
     temp_dense1 = keras.layers.Dense(units=32, activation="relu")(temp_input)
 
-    concatenated = keras.layers.Concatenate(axis = 1)([bvp_dense3, eda_dense1, temp_dense1])
+    concatenated = keras.layers.Concatenate(axis=1)([bvp_dense3, eda_dense1, temp_dense1])
 
     dense_combined_1 = keras.layers.Dense(units=32, activation="relu")(concatenated)
     dropout = keras.layers.Dropout(rate=0.25)(dense_combined_1)
