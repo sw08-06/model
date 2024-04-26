@@ -20,12 +20,16 @@ class SliceLayer(keras.layers.Layer):
         return cls(**config)
 
 
-def model_v1():
-    combined_input = keras.Input(shape=(4320, 1))
+def model_v1(window_size):
+    bvp_length = window_size * 64
+    eda_temp_length = window_size * 4
+    total_length = bvp_length + 2 * eda_temp_length
 
-    bvp_input = SliceLayer(0, 3840)(combined_input)
-    eda_input = SliceLayer(3840, 4080)(combined_input)
-    temp_input = SliceLayer(4080, 4320)(combined_input)
+    combined_input = keras.Input(shape=(total_length, 1))
+
+    bvp_input = SliceLayer(0, bvp_length)(combined_input)
+    eda_input = SliceLayer(bvp_length, bvp_length + eda_temp_length)(combined_input)
+    temp_input = SliceLayer(bvp_length + eda_temp_length, total_length)(combined_input)
 
     bvp_conv1 = keras.layers.Conv1D(filters=40, kernel_size=16, strides=4, padding="same", activation="relu")(bvp_input)
     bvp_conv2 = keras.layers.Conv1D(filters=20, kernel_size=8, strides=4, padding="same", activation="relu")(bvp_conv1)
@@ -54,5 +58,36 @@ def model_v1():
     return keras.Model(inputs=combined_input, outputs=output)
 
 
+def model_v2(window_size):
+    bvp_length = window_size * 64
+    eda_temp_length = window_size * 4
+    total_length = bvp_length + 2 * eda_temp_length
+    
+    combined_input = keras.Input(shape=(total_length, 1))
+
+    bvp_input = SliceLayer(0, bvp_length)(combined_input)
+    eda_input = SliceLayer(bvp_length, bvp_length + eda_temp_length)(combined_input)
+    temp_input = SliceLayer(bvp_length + eda_temp_length, total_length)(combined_input)
+
+    bvp_dense1 = keras.layers.Dense(units=128, activation="relu")(bvp_input)
+    bvp_dense2 = keras.layers.Dense(units=64, activation="relu")(bvp_dense1)
+    bvp_dense3 = keras.layers.Dense(units=32, activation="relu")(bvp_dense2)
+
+    eda_dense1 = keras.layers.Dense(units=32, activation="relu")(eda_input)
+
+    temp_dense1 = keras.layers.Dense(units=32, activation="relu")(temp_input)
+
+    concatenated = keras.layers.Concatenate(axis = 1)([bvp_dense3, eda_dense1, temp_dense1])
+
+    dense_combined_1 = keras.layers.Dense(units=32, activation="relu")(concatenated)
+    dropout = keras.layers.Dropout(rate=0.25)(dense_combined_1)
+    dense_combined_2 = keras.layers.Dense(units=16, activation="relu")(dropout)
+    dense_combined_3 = keras.layers.Dense(units=8, activation="relu")(dense_combined_2)
+    output = keras.layers.Dense(units=1, activation="sigmoid")(dense_combined_3)
+
+    return keras.Model(inputs=combined_input, outputs=output)
+
+
 if __name__ == "__main__":
-    model_v1().summary()
+    model_v1(60).summary()
+    model_v2(60).summary()
