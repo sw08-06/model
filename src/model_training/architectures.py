@@ -75,7 +75,7 @@ def model_v2(window_size):
 
     temp_dense1 = keras.layers.Dense(units=32, activation="relu")(temp_input)
 
-    concatenated = keras.layers.Concatenate(axis=1)([bvp_dense3, eda_dense1, temp_dense1])
+    concatenated = keras.layers.Concatenate()([bvp_dense3, eda_dense1, temp_dense1])
 
     dense_combined_1 = keras.layers.Dense(units=32, activation="relu")(concatenated)
     dropout = keras.layers.Dropout(rate=0.25)(dense_combined_1)
@@ -87,5 +87,5 @@ def model_v2(window_size):
 
 
 if __name__ == "__main__":
-    model_v1(60).summary()
-    model_v2(60).summary()
+    model_v1(5).summary()
+    model_v2(5).summary()
