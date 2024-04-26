@@ -61,7 +61,7 @@ def model_v2(window_size):
     eda_temp_length = window_size * 4
     total_length = bvp_length + 2 * eda_temp_length
 
-    combined_input = keras.Input(shape=(total_length, 1))
+    combined_input = keras.Input(shape=(total_length,))
 
     bvp_input = SliceLayer(0, bvp_length)(combined_input)
     eda_input = SliceLayer(bvp_length, bvp_length + eda_temp_length)(combined_input)
