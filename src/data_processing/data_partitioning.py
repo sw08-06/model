@@ -33,15 +33,8 @@ class DataPartitioner:
         """
         subjects = [subject for subject in os.listdir(self.data_path) if not subject.endswith(".pdf")]
 
-        dir_number = 1
-        while True:
-            frames_dir = os.path.join("data", f"frames{dir_number}")
-            if not os.path.exists(frames_dir):
-                os.makedirs(frames_dir)
-                break
-            else:
-                dir_number += 1
-
+        frames_dir = os.path.join("data", f"frames_{self.window_seconds}s")
+        os.makedirs(frames_dir, exist_ok=True)
         h5_file_names = [
             os.path.join(frames_dir, "training.h5"),
             os.path.join(frames_dir, "validation.h5"),
@@ -172,7 +165,7 @@ if __name__ == "__main__":
         fs=[64, 4, 4],
         window_seconds=60,
         overlap_seconds=59.75,
-        loso_subject="S7",
+        loso_subject="S17",
         train_val_split=0.7,
     )
 
