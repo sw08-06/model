@@ -1,3 +1,4 @@
+import os
 import random
 import numpy as np
 import keras
@@ -56,7 +57,7 @@ class Generator(keras.utils.PyDataset):
 
 
 if __name__ == "__main__":
-    gene = Generator("data/frames1/training.h5", 256)
+    gene = Generator(os.path.join("data", "frames_5s_S17", "training.h5"), 256)
     print(gene.__len__())
     print(gene.__getitem__(0)[0].shape)
     print(gene.__getitem__(0)[1].shape)

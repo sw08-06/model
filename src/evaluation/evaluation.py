@@ -94,14 +94,24 @@ def calculate_predictions(data, model):
 
 
 if __name__ == "__main__":
-    model_name = "model_v1_60s_focal_3.keras"
-    model = keras.models.load_model(filepath=os.path.join("models", model_name), custom_objects={"SliceLayer": SliceLayer})
-    data, labels = load_data(testing_data_path=os.path.join("data", "frames1", "testing.h5"))
-    preds = calculate_predictions(data, model)
+    model_names = [model_name for model_name in os.listdir("models")]
+    labels = []
+    preds = []
+    for model_name in model_names:
+        window_size = model_name.split("_")[2].split(".")[0]
+        model = keras.models.load_model(filepath=os.path.join("models", model_name), custom_objects={"SliceLayer": SliceLayer})
+        data, data_labels = load_data(testing_data_path=os.path.join("data", f"frames_{window_size}_S17", "testing.h5"))
+        labels.append(data_labels)
+        preds.append(calculate_predictions(data, model))
+
 
     data_dict = {
-        "Test model": {"labels": labels, "preds": preds},
+        model_name: {
+            "labels": labels[i],
+            "preds": preds[i]
+        }
+        for i, model_name in enumerate(model_names)
     }
+
     precision_recall_plot(data_dict)
     auc_roc_plot(data_dict)
-    confusion_matrix_plot(data_dict)

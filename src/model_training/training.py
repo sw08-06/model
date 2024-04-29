@@ -1,17 +1,19 @@
 import os
 import tensorflow as tf
 import keras
-from architectures import model_v1
+from architectures import *
 from generator import Generator
 
 
 def execute_training(training_data_path, validation_data_path, model, model_name, batch_size, num_epochs):
     model.summary()
     print("---- GPU available ----" if tf.config.list_physical_devices("GPU") else "---- No GPU available ----")
+    print(f"training data path: {training_data_path}")
+    print(f"validation data path: {validation_data_path}")
 
     model.compile(
         optimizer=keras.optimizers.Adam(0.001),
-        loss=keras.losses.BinaryFocalCrossentropy(),
+        loss=keras.losses.BinaryCrossentropy(),
         metrics=[keras.metrics.BinaryAccuracy()],
     )
 
@@ -19,9 +21,9 @@ def execute_training(training_data_path, validation_data_path, model, model_name
     validation_data_generator = Generator(validation_data_path, batch_size)
 
     def _scheduler(epoch, learning_rate):
-        if epoch == 20:
+        if epoch == 46:
             return learning_rate * 0.1
-        elif epoch == 30:
+        elif epoch == 58:
             return learning_rate * 0.1
         else:
             return learning_rate
@@ -40,11 +42,22 @@ def execute_training(training_data_path, validation_data_path, model, model_name
 
 
 if __name__ == "__main__":
-    execute_training(
-        training_data_path=os.environ.get("TRAINING_DATA_PATH"),
-        validation_data_path=os.environ.get("VALIDATION_DATA_PATH"),
-        model=model_v1(),
-        model_name="model_v1_60s_focal",
-        batch_size=256,
-        num_epochs=40,
-    )
+    window_sizes = [5, 15, 30, 60, 90, 120]
+
+    for window_size in window_sizes:
+        execute_training(
+            training_data_path=os.path.join(os.environ.get("DATA_PATH"), f"frames_{window_size}s_S17", "training.h5"),
+            validation_data_path=os.path.join(os.environ.get("DATA_PATH"), f"frames_{window_size}s_S17", "validation.h5"),
+            model=model_v1(window_size),
+            model_name=f"model_v1_{window_size}s",
+            batch_size=64,
+            num_epochs=70,
+        )
+        execute_training(
+            training_data_path=os.path.join(os.environ.get("DATA_PATH"), f"frames_{window_size}s_S17", "training.h5"),
+            validation_data_path=os.path.join(os.environ.get("DATA_PATH"), f"frames_{window_size}s_S17", "validation.h5"),
+            model=model_v2(window_size),
+            model_name=f"model_v2_{window_size}s",
+            batch_size=64,
+            num_epochs=70,
+        )
