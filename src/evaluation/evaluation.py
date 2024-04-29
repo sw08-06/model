@@ -5,11 +5,29 @@ import h5py
 import keras
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.metrics import precision_recall_curve, roc_curve, auc, confusion_matrix
+from sklearn.metrics import precision_recall_curve, roc_curve, auc, confusion_matrix, f1_score
 
 
 sys.path.append("src")
 from model_training.architectures import SliceLayer
+
+
+def f1_score_calculation(data_dict, output_path):
+    plt.figure(figsize=(8, 6))
+
+    table_data = []
+    for model_name, data in data_dict.items():
+        labels = data["labels"]
+        preds = np.round(data["preds"])
+        f1 = f1_score(labels, preds)
+        table_data.append([model_name, f1])
+
+    plt.axis("tight")
+    plt.axis("off")
+    plt.table(cellText=table_data, colLabels=["Model", "F1 Score"], loc="center", cellLoc="center", colWidths=[0.3, 0.3])
+
+    plt.savefig(output_path, dpi=300, bbox_inches="tight")
+    plt.close()
 
 
 def precision_recall_plot(data_dict):
@@ -104,14 +122,7 @@ if __name__ == "__main__":
         labels.append(data_labels)
         preds.append(calculate_predictions(data, model))
 
-
-    data_dict = {
-        model_name: {
-            "labels": labels[i],
-            "preds": preds[i]
-        }
-        for i, model_name in enumerate(model_names)
-    }
+    data_dict = {model_name: {"labels": labels[i], "preds": preds[i]} for i, model_name in enumerate(model_names)}
 
     precision_recall_plot(data_dict)
     auc_roc_plot(data_dict)
