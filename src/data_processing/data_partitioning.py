@@ -159,14 +159,15 @@ class DataPartitioner:
 
 
 if __name__ == "__main__":
-    dataPartitioner = DataPartitioner(
-        data_path=os.path.join("data", "WESAD_preprocessed1"),
-        data_types=["BVP", "EDA", "TEMP"],
-        fs=[64, 4, 4],
-        window_seconds=60,
-        overlap_seconds=59.75,
-        loso_subject="S17",
-        train_val_split=0.7,
-    )
-
-    dataPartitioner.process_all_subjects()
+    windows = [5, 15, 30, 60, 90, 120]
+    for window in windows:
+        dataPartitioner = DataPartitioner(
+            data_path=os.path.join("data", "WESAD_hampel120s_nsigma3"),
+            data_types=["BVP", "EDA", "TEMP"],
+            fs=[64, 4, 4],
+            window_seconds=window,
+            overlap_seconds=window-0.25,
+            loso_subject="S2",
+            train_val_split=0.7,
+        )
+        dataPartitioner.process_all_subjects()
