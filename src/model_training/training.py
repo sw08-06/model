@@ -50,7 +50,7 @@ if __name__ == "__main__":
             training_data_path=os.path.join(os.environ.get("DATA_PATH"), f"frames_{window_size}s_{loso_subject}", "training.h5"),
             validation_data_path=os.path.join(os.environ.get("DATA_PATH"), f"frames_{window_size}s_{loso_subject}", "validation.h5"),
             model=model_v3(window_size),
-            model_name=f"model_v3_{loso_subject}_{window_size}s_focal",
+            model_name=f"model_v4_{loso_subject}_{window_size}s_focal",
             batch_size=64,
             num_epochs=50,
         )
