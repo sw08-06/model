@@ -136,9 +136,13 @@ def visualize_frames(frames):
 
 
 if __name__ == "__main__":
-    file_path = os.path.join("data", "frames1", "training.h5")
-    data = load_HDF5(file_path, 0)
-    visualize_frames([data[:3840], data[3840:4080], data[4080:]])
+    file_path = os.path.join("data", "frames_60s_S2", "training.h5")
+    with h5py.File(file_path, "r") as file:
+        stress_list = [dataset for dataset in file if file[dataset].attrs["label"] == 1]
+        print(len(stress_list))
+
+    # data = load_HDF5(file_path, 0)
+    # visualize_frames([data[:3840], data[3840:4080], data[4080:]])
     # file_path = os.path.join("data", "WESAD_preprocessed1", "S2", "S2.pkl")
     # data = load_pkl(file_path, "EDA")
     # data1 = load_pkl(file_path, "BVP")

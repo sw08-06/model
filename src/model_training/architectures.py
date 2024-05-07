@@ -118,10 +118,10 @@ def model_v3(window_size):
     dense1 = keras.layers.Dense(units=64, activation="relu")(concatenated)
     dropout1 = keras.layers.Dropout(rate=0.25)(dense1)
     dense2 = keras.layers.Dense(units=32, activation="relu")(dropout1)
-    dropout2 = keras.layers.Dropout(rate=0.25)(dense2)
     output = keras.layers.Dense(units=1, activation="sigmoid")(dense2)
 
     return keras.Model(inputs=combined_input, outputs=output)
+
 
 def model_v4(window_size):
     bvp_length = window_size * 64

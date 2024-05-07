@@ -21,9 +21,9 @@ def execute_training(training_data_path, validation_data_path, model, model_name
     validation_data_generator = Generator(validation_data_path, batch_size)
 
     def _scheduler(epoch, learning_rate):
-        if epoch == 30:
+        if epoch == 20:
             return learning_rate * 0.1
-        elif epoch == 40:
+        elif epoch == 27:
             return learning_rate * 0.1
         else:
             return learning_rate
@@ -47,10 +47,10 @@ if __name__ == "__main__":
 
     for window_size in window_sizes:
         execute_training(
-            training_data_path=os.path.join(os.environ.get("DATA_PATH"), f"frames_{window_size}s_{loso_subject}", "training.h5"),
-            validation_data_path=os.path.join(os.environ.get("DATA_PATH"), f"frames_{window_size}s_{loso_subject}", "validation.h5"),
-            model=model_v3(window_size),
-            model_name=f"model_v4_{loso_subject}_{window_size}s_focal",
+            training_data_path=os.path.join(os.environ.get("DATA_PATH"), f"frames_{window_size}s_{loso_subject}_stress_mul8", "training.h5"),
+            validation_data_path=os.path.join(os.environ.get("DATA_PATH"), f"frames_{window_size}s_{loso_subject}_stress_mul8", "validation.h5"),
+            model=model_v4(window_size),
+            model_name=f"model_v4_{loso_subject}_{window_size}s_focal_stress_mul8",
             batch_size=64,
-            num_epochs=50,
+            num_epochs=32,
         )

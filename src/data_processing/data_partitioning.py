@@ -6,7 +6,7 @@ import h5py
 
 
 class DataPartitioner:
-    def __init__(self, data_path, data_types, fs, window_seconds, overlap_seconds, loso_subject, train_val_split):
+    def __init__(self, data_path, data_types, fs, window_seconds, overlap_seconds, loso_subject, train_val_split, stress_multiplier):
         """
         Initializes a DataHandler instance.
 
@@ -18,6 +18,7 @@ class DataPartitioner:
             overlap_seconds (float): The overlap in seconds for all data types.
             loso_subject (str): Name of the subject for leave-one-subject-out cross-validation.
             train_val_split (float): The ratio to split the data into training and validation sets.
+            stress_multiplier (int): An integer specifying the amount of times that the stress data should be multiplied.
         """
         self.data_path = data_path
         self.data_types = data_types
@@ -26,6 +27,7 @@ class DataPartitioner:
         self.overlap_seconds = overlap_seconds
         self.loso_subject = loso_subject
         self.train_val_split = train_val_split
+        self.stress_multiplier = stress_multiplier
 
     def process_all_subjects(self):
         """
@@ -33,7 +35,7 @@ class DataPartitioner:
         """
         subjects = [subject for subject in os.listdir(self.data_path) if not subject.endswith(".pdf")]
 
-        frames_dir = os.path.join("data", f"frames_{self.window_seconds}s_{self.loso_subject}")
+        frames_dir = os.path.join("data", f"frames_{self.window_seconds}s_{self.loso_subject}_stress_mul{self.stress_multiplier}")
         os.makedirs(frames_dir, exist_ok=True)
         h5_file_names = [
             os.path.join(frames_dir, "training.h5"),
@@ -60,6 +62,12 @@ class DataPartitioner:
                 label_indices = self._find_label_indices(wesad_data["label"])
                 print(f"Loaded subject: {subject} - label_indices: {label_indices}")
                 index = 0
+
+                if not subject == self.loso_subject:
+                    if self.stress_multiplier > 1:
+                        stress_label_pair = label_indices[0]
+                        for _ in range(self.stress_multiplier - 1):
+                            label_indices.insert(0, stress_label_pair)
 
             with h5py.File(h5_file_names[0], "a") as h5_training, h5py.File(h5_file_names[1], "a") as h5_validation, h5py.File(h5_file_names[2], "a") as h5_testing:
                 for label_pair in label_indices:
@@ -169,5 +177,6 @@ if __name__ == "__main__":
             overlap_seconds=window-0.25,
             loso_subject="S2",
             train_val_split=0.7,
+            stress_multiplier=8,
         )
         dataPartitioner.process_all_subjects()

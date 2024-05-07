@@ -1,5 +1,6 @@
 import os
 import sys
+import re
 import itertools
 import h5py
 import keras
@@ -112,13 +113,13 @@ def calculate_predictions(data, model):
 
 
 if __name__ == "__main__":
-    model_names = [model_name for model_name in os.listdir("models") if model_name.split("_")[1] == "v3"]
+    model_names = [model_name for model_name in os.listdir("models") if re.search(r"mul8", model_name)]
     labels = []
     preds = []
     for model_name in model_names:
         window_size = model_name.split("_")[3].split(".")[0]
         model = keras.models.load_model(filepath=os.path.join("models", model_name), custom_objects={"SliceLayer": SliceLayer})
-        data, data_labels = load_data(testing_data_path=os.path.join("data", f"frames_{window_size}_S2", "testing.h5"))
+        data, data_labels = load_data(testing_data_path=os.path.join("data", f"frames_{window_size}_S2_stress_mul8", "testing.h5"))
         labels.append(data_labels)
         preds.append(calculate_predictions(data, model))
 
