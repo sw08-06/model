@@ -73,7 +73,11 @@ if __name__ == "__main__":
         data_path=os.path.join("data", "WESAD"),
         data_types=["BVP", "EDA", "TEMP"],
         fs=[64, 4, 4],
-        functions_dict={"BVP": [], "EDA": [lambda data: hampel(data, window_size=120, n_sigma=3.0).filtered_data, MinMaxScaler()], "TEMP": [MinMaxScaler()]},
+        functions_dict={
+            "BVP": [],
+            "EDA": [lambda data: hampel(data, window_size=120, n_sigma=3.0).filtered_data, lambda data: MinMaxScaler(data)],
+            "TEMP": [lambda data: MinMaxScaler(data)],
+        },
     )
 
     dataPreprocessor.process_all_subjects()

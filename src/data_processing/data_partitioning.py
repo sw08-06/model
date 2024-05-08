@@ -191,6 +191,6 @@ if __name__ == "__main__":
             loso_subject="S2",
             train_val_split=0.7,
             stress_multiplier=8,
-            functions_dict={"BVP": [MinMaxScaler()], "EDA": [], "TEMP": []},
+            functions_dict={"BVP": [lambda data: MinMaxScaler(data)], "EDA": [], "TEMP": []},
         )
         dataPartitioner.process_all_subjects()
