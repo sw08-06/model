@@ -38,7 +38,7 @@ class DataPartitioner:
         """
         subjects = [subject for subject in os.listdir(self.data_path) if not subject.endswith(".pdf")]
 
-        frames_dir = os.path.join("data", f"frames_{self.window_seconds}s_{self.loso_subject}_stress_mul{self.stress_multiplier}")
+        frames_dir = os.path.join("data", f"frames_{self.window_seconds}s_{self.loso_subject}_sm{self.stress_multiplier}_normBVP")
         os.makedirs(frames_dir, exist_ok=True)
         h5_file_names = [
             os.path.join(frames_dir, "training.h5"),

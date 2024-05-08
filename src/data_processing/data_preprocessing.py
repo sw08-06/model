@@ -58,7 +58,7 @@ class DataPreprocessor:
                     preprocessing_funcs = self.functions_dict.get(data_type)
                     if preprocessing_funcs:
                         for preprocessing_func in preprocessing_funcs:
-                            wesad_data["signal"]["wrist"][data_type] = preprocessing_func(np.array(wesad_data["signal"]["wrist"][data_type][:].flatten()))[:, np.newaxis]
+                            wesad_data["signal"]["wrist"][data_type] = preprocessing_func(np.array(wesad_data["signal"]["wrist"][data_type][:].flatten()))
 
                 with open(os.path.join("data", f"WESAD_preprocessed{self.dir_number}", subject, f"{subject}.pkl"), "wb") as file:
                     pickle.dump(wesad_data, file)
@@ -77,7 +77,7 @@ if __name__ == "__main__":
         fs=[64, 4, 4],
         functions_dict={
             "BVP": [],
-            "EDA": [lambda data: hampel(data, window_size=120, n_sigma=3.0).filtered_data, lambda data: scaler.fit_transform(data.reshape(-1, 1))],
+            "EDA": [lambda data: hampel(data, window_size=120, n_sigma=3.0).filtered_data[:, np.newaxis], lambda data: scaler.fit_transform(data.reshape(-1, 1))],
             "TEMP": [lambda data: scaler.fit_transform(data.reshape(-1, 1))],
         },
     )
