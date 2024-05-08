@@ -77,8 +77,8 @@ if __name__ == "__main__":
         fs=[64, 4, 4],
         functions_dict={
             "BVP": [],
-            "EDA": [lambda data: hampel(data, window_size=120, n_sigma=3.0).filtered_data, lambda data: scaler.fit_transform(data)],
-            "TEMP": [lambda data: scaler.fit_transform(data)],
+            "EDA": [lambda data: hampel(data, window_size=120, n_sigma=3.0).filtered_data, lambda data: scaler.fit_transform(data.reshape(-1, 1))],
+            "TEMP": [lambda data: scaler.fit_transform(data.reshape(-1, 1))],
         },
     )
 
