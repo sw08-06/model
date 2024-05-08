@@ -8,7 +8,7 @@ import h5py
 class DataPartitioner:
     def __init__(self, data_path, data_types, fs, window_seconds, overlap_seconds, loso_subject, train_val_split, stress_multiplier):
         """
-        Initializes a DataHandler instance.
+        Initializes a DataPartitioner instance.
 
         Args:
             data_path (str): The path of the WESAD dataset.
@@ -45,9 +45,9 @@ class DataPartitioner:
 
         with ThreadPoolExecutor(max_workers=15) as executor:
             for subject in subjects:
-                executor.submit(self._create_labeled_frames, subject, h5_file_names)
+                executor.submit(self._create_labeled_frames, h5_file_names, subject)
 
-    def _create_labeled_frames(self, subject, h5_file_names):
+    def _create_labeled_frames(self, h5_file_names, subject):
         """
         Creates labeled frames from the WESAD dataset for a specific subject in the segments of the data
         corresponding to stressed (label 2) and not stressed (labels 1, 3, and 4).
@@ -174,8 +174,8 @@ if __name__ == "__main__":
             data_types=["BVP", "EDA", "TEMP"],
             fs=[64, 4, 4],
             window_seconds=window,
-            overlap_seconds=window-0.25,
-            loso_subject="S5",
+            overlap_seconds=window - 0.25,
+            loso_subject="S2",
             train_val_split=0.7,
             stress_multiplier=8,
         )
