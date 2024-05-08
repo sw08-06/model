@@ -21,9 +21,9 @@ def execute_training(training_data_path, validation_data_path, model, model_name
     validation_data_generator = Generator(validation_data_path, batch_size)
 
     def _scheduler(epoch, learning_rate):
-        if epoch == 20:
+        if epoch == 12:
             return learning_rate * 0.1
-        elif epoch == 27:
+        elif epoch == 17:
             return learning_rate * 0.1
         else:
             return learning_rate
@@ -52,5 +52,5 @@ if __name__ == "__main__":
             model=model_v4(window_size),
             model_name=f"model_v4_{loso_subject}_{window_size}s_stress_mul8",
             batch_size=64,
-            num_epochs=32,
+            num_epochs=20,
         )

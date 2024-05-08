@@ -3,6 +3,7 @@ import os
 import pickle
 import numpy as np
 from hampel import hampel
+from sklearn.preprocessing import MinMaxScaler
 
 
 class DataPreprocessor:
@@ -72,7 +73,7 @@ if __name__ == "__main__":
         data_path=os.path.join("data", "WESAD"),
         data_types=["BVP", "EDA", "TEMP"],
         fs=[64, 4, 4],
-        functions_dict={"BVP": [], "EDA": [lambda data: hampel(data, window_size=120, n_sigma=3.0).filtered_data], "TEMP": []},
+        functions_dict={"BVP": [], "EDA": [lambda data: hampel(data, window_size=120, n_sigma=3.0).filtered_data, MinMaxScaler()], "TEMP": [MinMaxScaler()]},
     )
 
     dataPreprocessor.process_all_subjects()

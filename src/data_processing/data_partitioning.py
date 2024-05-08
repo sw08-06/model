@@ -3,10 +3,11 @@ import os
 import pickle
 import numpy as np
 import h5py
+from sklearn.preprocessing import MinMaxScaler
 
 
 class DataPartitioner:
-    def __init__(self, data_path, data_types, fs, window_seconds, overlap_seconds, loso_subject, train_val_split, stress_multiplier):
+    def __init__(self, data_path, data_types, fs, window_seconds, overlap_seconds, loso_subject, train_val_split, stress_multiplier, functions_dict):
         """
         Initializes a DataPartitioner instance.
 
@@ -19,6 +20,7 @@ class DataPartitioner:
             loso_subject (str): Name of the subject for leave-one-subject-out cross-validation.
             train_val_split (float): The ratio to split the data into training and validation sets.
             stress_multiplier (int): An integer specifying the amount of times that the stress data should be multiplied.
+            functions_dict (dict): A dictionary mapping data types to lists of preprocessing functions.
         """
         self.data_path = data_path
         self.data_types = data_types
@@ -28,6 +30,7 @@ class DataPartitioner:
         self.loso_subject = loso_subject
         self.train_val_split = train_val_split
         self.stress_multiplier = stress_multiplier
+        self.functions_dict = functions_dict
 
     def process_all_subjects(self):
         """
@@ -80,7 +83,17 @@ class DataPartitioner:
                         data_arr = []
                         for j, data_type in enumerate(self.data_types):
                             _, start, end, sample_skip, window_samples = self._calculate_num_frames(self.fs[j], self.window_seconds, label_pair)
-                            data_arr.append(wesad_data["signal"]["wrist"][data_type][int(start) : int(end)][int(i * sample_skip) : int(window_samples + i * sample_skip)])
+
+                            preprocessing_funcs = self.functions_dict.get(data_type)
+                            if preprocessing_funcs:
+                                temp_frame = wesad_data["signal"]["wrist"][data_type][int(start) : int(end)][int(i * sample_skip) : int(window_samples + i * sample_skip)]
+                                for preprocessing_func in preprocessing_funcs:
+                                    temp_frame = preprocessing_func(temp_frame)
+                                data_arr.append(temp_frame)
+                            else:
+                                data_arr.append(
+                                    wesad_data["signal"]["wrist"][data_type][int(start) : int(end)][int(i * sample_skip) : int(window_samples + i * sample_skip)]
+                                )
 
                         dataset_name = f"{subject}_frame_{index + i}"
                         dataset = np.concatenate(data_arr)
@@ -178,5 +191,6 @@ if __name__ == "__main__":
             loso_subject="S2",
             train_val_split=0.7,
             stress_multiplier=8,
+            functions_dict={"BVP": [MinMaxScaler()], "EDA": [], "TEMP": []},
         )
         dataPartitioner.process_all_subjects()
