@@ -181,11 +181,10 @@ class DataPartitioner:
 
 if __name__ == "__main__":
     windows = [5, 15, 30, 60, 90, 120]
-    scaler = MinMaxScaler()
 
     for window in windows:
         dataPartitioner = DataPartitioner(
-            data_path=os.path.join("data", "WESAD_hampel120s_nsigma3"),
+            data_path=os.path.join("data", "WESAD_preprocessed1"),
             data_types=["BVP", "EDA", "TEMP"],
             fs=[64, 4, 4],
             window_seconds=window,
@@ -193,6 +192,6 @@ if __name__ == "__main__":
             loso_subject="S2",
             train_val_split=0.7,
             stress_multiplier=8,
-            functions_dict={"BVP": [lambda data: scaler.fit_transform(data.reshape(-1, 1))], "EDA": [], "TEMP": []},
+            functions_dict={"BVP": [lambda data: MinMaxScaler().fit_transform(data)], "EDA": [], "TEMP": []},
         )
         dataPartitioner.process_all_subjects()
