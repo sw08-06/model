@@ -8,12 +8,12 @@ from generator import Generator
 def execute_training(training_data_path, validation_data_path, model, model_name, batch_size, num_epochs):
     model.summary()
     print("---- GPU available ----" if tf.config.list_physical_devices("GPU") else "---- No GPU available ----")
-    print(f"training data path: {training_data_path}")
-    print(f"validation data path: {validation_data_path}")
+    print(f"Training data path: {training_data_path}")
+    print(f"Validation data path: {validation_data_path}")
 
     model.compile(
         optimizer=keras.optimizers.Adam(0.001),
-        loss=keras.losses.BinaryFocalCrossentropy(),
+        loss=keras.losses.BinaryCrossentropy(),
         metrics=[keras.metrics.BinaryAccuracy()],
     )
 
@@ -50,7 +50,7 @@ if __name__ == "__main__":
             training_data_path=os.path.join(os.environ.get("DATA_PATH"), f"frames_{window_size}s_{loso_subject}_stress_mul8", "training.h5"),
             validation_data_path=os.path.join(os.environ.get("DATA_PATH"), f"frames_{window_size}s_{loso_subject}_stress_mul8", "validation.h5"),
             model=model_v4(window_size),
-            model_name=f"model_v4_{loso_subject}_{window_size}s_focal_stress_mul8",
+            model_name=f"model_v4_{loso_subject}_{window_size}s_stress_mul8",
             batch_size=64,
             num_epochs=32,
         )

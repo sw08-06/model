@@ -117,9 +117,9 @@ if __name__ == "__main__":
     labels = []
     preds = []
     for model_name in model_names:
-        window_size = model_name.split("_")[3].split(".")[0]
+        window_size = model_name.split("_")[3]
         model = keras.models.load_model(filepath=os.path.join("models", model_name), custom_objects={"SliceLayer": SliceLayer})
-        data, data_labels = load_data(testing_data_path=os.path.join("data", f"frames_{window_size}_S2_stress_mul8", "testing.h5"))
+        data, data_labels = load_data(testing_data_path=os.path.join("data", f"frames_{window_size}_S5_stress_mul8", "testing.h5"))
         labels.append(data_labels)
         preds.append(calculate_predictions(data, model))
 

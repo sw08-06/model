@@ -175,7 +175,7 @@ if __name__ == "__main__":
             fs=[64, 4, 4],
             window_seconds=window,
             overlap_seconds=window-0.25,
-            loso_subject="S2",
+            loso_subject="S5",
             train_val_split=0.7,
             stress_multiplier=8,
         )
