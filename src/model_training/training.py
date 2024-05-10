@@ -42,15 +42,19 @@ def execute_training(training_data_path, validation_data_path, model, model_name
 
 
 if __name__ == "__main__":
-    window_sizes = [5, 15, 30, 60, 90, 120]
-    loso_subject = "S2"
+    models = [lambda w: model_v2(w), lambda w: model_v4(w)]
+    model_name = ["model_v2", "model_v4"]
+    subjects = ["S2", "S3", "S4", "S5", "S6"]
+    windows = [5, 30, 60, 90, 120]
 
-    for window_size in window_sizes:
-        execute_training(
-            training_data_path=os.path.join(os.environ.get("DATA_PATH"), f"frames_{window_size}s_{loso_subject}_stress_mul8", "training.h5"),
-            validation_data_path=os.path.join(os.environ.get("DATA_PATH"), f"frames_{window_size}s_{loso_subject}_stress_mul8", "validation.h5"),
-            model=model_v4(window_size),
-            model_name=f"model_v4_{loso_subject}_{window_size}s_stress_mul8",
-            batch_size=64,
-            num_epochs=20,
-        )
+    for i, model in enumerate(models):
+        for subject in subjects:
+            for window in windows:
+                execute_training(
+                    training_data_path=os.path.join(os.environ.get("DATA_PATH"), f"frames_{subject}_{window}", "training.h5"),
+                    validation_data_path=os.path.join(os.environ.get("DATA_PATH"), f"frames_{subject}_{window}", "validation.h5"),
+                    model=model(window),
+                    model_name=f"{model_name[i]}_{subject}_{window}",
+                    batch_size=64,
+                    num_epochs=20,
+                )

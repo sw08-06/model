@@ -67,15 +67,14 @@ def model_v2(window_size):
     eda_input = SliceLayer(bvp_length, bvp_length + eda_temp_length)(combined_input)
     temp_input = SliceLayer(bvp_length + eda_temp_length, total_length)(combined_input)
 
-    bvp_dense1 = keras.layers.Dense(units=128, activation="relu")(bvp_input)
-    bvp_dense2 = keras.layers.Dense(units=64, activation="relu")(bvp_dense1)
-    bvp_dense3 = keras.layers.Dense(units=32, activation="relu")(bvp_dense2)
+    bvp_dense1 = keras.layers.Dense(units=64, activation="relu")(bvp_input)
+    bvp_dense2 = keras.layers.Dense(units=32, activation="relu")(bvp_dense1)
 
     eda_dense1 = keras.layers.Dense(units=32, activation="relu")(eda_input)
 
     temp_dense1 = keras.layers.Dense(units=32, activation="relu")(temp_input)
 
-    concatenated = keras.layers.Concatenate()([bvp_dense3, eda_dense1, temp_dense1])
+    concatenated = keras.layers.Concatenate()([bvp_dense2, eda_dense1, temp_dense1])
 
     dense_combined_1 = keras.layers.Dense(units=32, activation="relu")(concatenated)
     dropout = keras.layers.Dropout(rate=0.25)(dense_combined_1)
@@ -162,4 +161,5 @@ def model_v4(window_size):
 
 
 if __name__ == "__main__":
+    #model_v2(60).summary()
     model_v4(60).summary()

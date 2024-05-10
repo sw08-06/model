@@ -38,7 +38,7 @@ class DataPartitioner:
         """
         subjects = [subject for subject in os.listdir(self.data_path) if not subject.endswith(".pdf")]
 
-        frames_dir = os.path.join("data", f"frames_{self.window_seconds}s_{self.loso_subject}_sm{self.stress_multiplier}_normBVP")
+        frames_dir = os.path.join("data", f"frames_{self.loso_subject}_{self.window_seconds}")
         os.makedirs(frames_dir, exist_ok=True)
         h5_file_names = [
             os.path.join(frames_dir, "training.h5"),
@@ -128,7 +128,7 @@ class DataPartitioner:
             list: Start and end pairs in a list with the first pair being for label 2 (stressed).
         """
         label_indices = []
-        for value in [2, 1, 3, 4]:
+        for value in [2, 1, 3]:#4 fjernet
             indices = np.where(label_signal == value)[0]
             first_index = indices[0]
             last_index = indices[-1]
@@ -180,19 +180,20 @@ class DataPartitioner:
 
 
 if __name__ == "__main__":
-    windows = [5, 15, 30, 60, 90, 120]
-    scaler = MinMaxScaler()
+    subjects = ["S2", "S3", "S4", "S5", "S6"]
+    windows = [5, 30, 60, 90, 120]
 
-    for window in windows:
-        dataPartitioner = DataPartitioner(
-            data_path=os.path.join("data", "WESAD_preprocessed1"),
-            data_types=["BVP", "EDA", "TEMP"],
-            fs=[64, 4, 4],
-            window_seconds=window,
-            overlap_seconds=window - 0.25,
-            loso_subject="S2",
-            train_val_split=0.7,
-            stress_multiplier=8,
-            functions_dict={"BVP": [lambda data: MinMaxScaler().fit_transform(data)], "EDA": [], "TEMP": []},
-        )
-        dataPartitioner.process_all_subjects()
+    for subject in subjects:
+        for window in windows:
+            dataPartitioner = DataPartitioner(
+                data_path=os.path.join("data", "WESAD_preprocessed1"),
+                data_types=["BVP", "EDA", "TEMP"],
+                fs=[64, 4, 4],
+                window_seconds=window,
+                overlap_seconds=window - 0.25,
+                loso_subject=subject,
+                train_val_split=0.7,
+                stress_multiplier=1,
+                functions_dict={"BVP": [lambda data: MinMaxScaler().fit_transform(data)], "EDA": [], "TEMP": []},
+            )
+            dataPartitioner.process_all_subjects()
