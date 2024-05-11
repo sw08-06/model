@@ -1,6 +1,8 @@
 from concurrent.futures import ThreadPoolExecutor
 import os
 import pickle
+import json
+import inspect
 import numpy as np
 from hampel import hampel
 from sklearn.preprocessing import MinMaxScaler
@@ -12,10 +14,11 @@ class DataPreprocessor:
         Initializes a DataPreprocessor instance.
 
         Args:
-            data_path (str): The path to the directory containing the data.
+            data_path (str): The path to the directory containing the raw data.
             data_types (list): A list of strings representing the types of data to be processed.
-            fs (list): A list of sampling frequencies corresponding to each data type.
+            fs (list): A list of sampling frequencies (in Hz) corresponding to each data type.
             functions_dict (dict): A dictionary mapping data types to lists of preprocessing functions.
+                Each preprocessing function should accept a numpy array as input and return a processed numpy array.
         """
         self.data_path = data_path
         self.data_types = data_types
@@ -33,6 +36,7 @@ class DataPreprocessor:
             dir_name = os.path.join("data", f"WESAD_preprocessed{self.dir_number}")
             if not os.path.exists(dir_name):
                 os.makedirs(dir_name)
+                self._create_config(dir_name)
                 break
             else:
                 self.dir_number += 1
@@ -42,9 +46,27 @@ class DataPreprocessor:
                 os.makedirs(os.path.join(dir_name, subject))
                 executor.submit(self._preprocess_data, subject)
 
+    def _create_config(self, dir_name):
+        """
+        Creates a configuration JSON file containing the data path, data types, sampling frequencies,
+        and preprocessing functions for each data type.
+
+        Args:
+            dir_name (str): The directory name where the configuration file will be created.
+        """
+        function_lists = [self.functions_dict[data_type] for data_type in self.data_types]
+        functions = [[inspect.getsource(func).strip() for func in inner_list] for inner_list in function_lists]
+
+        config_data = {"data_path": self.data_path, "data_types": self.data_types, "fs": self.fs, "functions_dict": functions}
+
+        with open(os.path.join(dir_name, "config.json"), "w") as config_file:
+            json.dump(config_data, config_file, indent=4)
+
     def _preprocess_data(self, subject):
         """
-        Preprocesses data for a specific subject and saves it.
+        Preprocesses the raw data for a specific subject by applying the specified preprocessing functions
+        to each data type. The preprocessed data is then saved in a new directory named "WESAD_preprocessedX",
+        where X is an incrementing number to ensure unique directory names.
 
         Args:
             subject (str): Name of the subject.
@@ -77,8 +99,8 @@ if __name__ == "__main__":
         fs=[64, 4, 4],
         functions_dict={
             "BVP": [],
-            "EDA": [lambda data: hampel(data, window_size=120, n_sigma=3.0).filtered_data[:, np.newaxis], lambda data: scaler.fit_transform(data.reshape(-1, 1))],
-            "TEMP": [lambda data: scaler.fit_transform(data.reshape(-1, 1))],
+            "EDA": [lambda data: hampel(data, window_size=120, n_sigma=3.0).filtered_data[:, np.newaxis], lambda data: scaler.fit_transform(data[:, np.newaxis])],
+            "TEMP": [lambda data: scaler.fit_transform(data[:, np.newaxis])],
         },
     )
 

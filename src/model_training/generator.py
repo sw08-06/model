@@ -23,13 +23,20 @@ class Generator(keras.utils.PyDataset):
     """
 
     def __init__(self, path, batch_size):
+        """
+        Initializes a Generator instance.
+
+        Args:
+            path (str): Path to the HDF5 file.
+            batch_size (int): Size of each batch.
+        """
         self.path = path
         self.batch_size = batch_size
         self.data = h5py.File(self.path, "r")
         self.dataset_names = list(self.data.keys())
         self.num_datasets = len(self.dataset_names)
-        self.random_indicies = [i for i in range(self.num_datasets)]
-        random.shuffle(self.random_indicies)
+        self.random_indices = [i for i in range(self.num_datasets)]
+        random.shuffle(self.random_indices)
 
     def __len__(self):
         """
@@ -47,7 +54,7 @@ class Generator(keras.utils.PyDataset):
         Returns:
             tuple: A tuple containing batch data and batch labels.
         """
-        batch_random_indices = self.random_indicies[idx * self.batch_size : (idx + 1) * self.batch_size]
+        batch_random_indices = self.random_indices[idx * self.batch_size : (idx + 1) * self.batch_size]
         batch_data = []
         batch_labels = []
         for i in batch_random_indices:

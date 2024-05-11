@@ -7,13 +7,14 @@ from sklearn.preprocessing import MinMaxScaler
 
 
 class DataPartitioner:
-    def __init__(self, data_path, data_types, fs, window_seconds, overlap_seconds, loso_subject, train_val_split, stress_multiplier, functions_dict):
+    def __init__(self, data_path, data_types, data_labels, fs, window_seconds, overlap_seconds, loso_subject, train_val_split, stress_multiplier, functions_dict):
         """
         Initializes a DataPartitioner instance.
 
         Args:
             data_path (str): The path of the WESAD dataset.
             data_types (list): List of data types to create frames from.
+            data_labels (list): List of labels corresponding to the different conditions present in the dataset.
             fs (list): List of sampling frequencies of the data types.
             window_seconds (float): List of window sizes in seconds for each data type.
             overlap_seconds (float): The overlap in seconds for all data types.
@@ -24,6 +25,7 @@ class DataPartitioner:
         """
         self.data_path = data_path
         self.data_types = data_types
+        self.data_labels = data_labels
         self.fs = fs
         self.window_seconds = window_seconds
         self.overlap_seconds = overlap_seconds
@@ -34,9 +36,9 @@ class DataPartitioner:
 
     def process_all_subjects(self):
         """
-        Utilizes multithreading to process all subjects from the WESAD dataset to create labeled frames.
+        Utilizes multithreading to process all subjects from the WESAD dataset to create labeled frames for subsequent training, validation, and testing
         """
-        subjects = [subject for subject in os.listdir(self.data_path) if not subject.endswith(".pdf")]
+        subjects = [subject for subject in os.listdir(self.data_path) if not subject.endswith(".pdf") or subject.endswith(".json")]
 
         frames_dir = os.path.join("data", f"frames_{self.loso_subject}_{self.window_seconds}")
         os.makedirs(frames_dir, exist_ok=True)
@@ -53,7 +55,7 @@ class DataPartitioner:
     def _create_labeled_frames(self, h5_file_names, subject):
         """
         Creates labeled frames from the WESAD dataset for a specific subject in the segments of the data
-        corresponding to stressed (label 2) and not stressed (labels 1, 3, and 4).
+        corresponding to the provided data labels.
 
         Args:
             subject (str): The name of the subject.
@@ -119,7 +121,7 @@ class DataPartitioner:
 
     def _find_label_indices(self, label_signal):
         """
-        Finds the start and end indices of label 2 (stressed) as well as labels 1, 3, and 4 (not stressed) in a label signal.
+        Finds the start and end indices of the data labels in a label signal.
 
         Args:
             label_signal (numpy.ndarray): An array containing the label signal.
@@ -128,7 +130,7 @@ class DataPartitioner:
             list: Start and end pairs in a list with the first pair being for label 2 (stressed).
         """
         label_indices = []
-        for value in [2, 1, 3]:#4 fjernet
+        for value in self.data_labels:
             indices = np.where(label_signal == value)[0]
             first_index = indices[0]
             last_index = indices[-1]
@@ -170,7 +172,7 @@ class DataPartitioner:
 
         Returns:
             numpy.ndarray: A binary vector with the same length as the number of frames,
-            where 1's represent frames for training and validation, and 0's represent frames for testing.
+            where 1's represent frames for training, and 0's represent frames for validation.
         """
         num_ones = int(np.ceil(num_frames * self.train_val_split))
         num_zeros = int(np.floor(num_frames - num_ones))
@@ -188,6 +190,7 @@ if __name__ == "__main__":
             dataPartitioner = DataPartitioner(
                 data_path=os.path.join("data", "WESAD_preprocessed1"),
                 data_types=["BVP", "EDA", "TEMP"],
+                data_labels=[2, 1, 3],
                 fs=[64, 4, 4],
                 window_seconds=window,
                 overlap_seconds=window - 0.25,

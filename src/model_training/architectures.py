@@ -161,5 +161,5 @@ def model_v4(window_size):
 
 
 if __name__ == "__main__":
-    #model_v2(60).summary()
+    model_v2(60).summary()
     model_v4(60).summary()

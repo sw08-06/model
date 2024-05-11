@@ -5,8 +5,6 @@ import numpy as np
 from scipy.fft import fft, fftfreq
 import matplotlib.pyplot as plt
 import h5py
-
-sys.path.append("src")
 from data_processing.preprocessing_methods import *
 
 
