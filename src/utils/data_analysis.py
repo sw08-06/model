@@ -5,7 +5,8 @@ import numpy as np
 from scipy.fft import fft, fftfreq
 import matplotlib.pyplot as plt
 import h5py
-from data_processing.preprocessing_methods import *
+sys.path.append("src")
+from data_processing.preprocessing_methods import * 
 
 
 def load_HDF5(file_path, dataset_index):
@@ -122,33 +123,66 @@ def visualize_frames(frames):
     for i, frame in enumerate(frames):
         ax = axes[i]
         ax.plot(frame)
-        ax.set_title(f"Frame {i+1}")
-        ax.set_xlabel("Sample Index")
-        ax.set_ylabel("Value")
-        ax.grid(True)
+        ax.set_title("Blood Volume Pulse")
+        ax.set_xlabel("Time")
+        ax.set_ylabel("Amplitude")
         ax.set_xlim(0, len(frame))
         ax.set_ylim(np.min(frame), np.max(frame))
+        ax.set_yticks([0])
+        ax.set_xticks([])
+        ax.set_xticklabels([])
+
+
+        plt.tight_layout()
+        plt.show()
+
+def visualize_frame_paper(frame):
+    """
+    Visualizes a list of frames.
+
+    Args:
+        frames (list of numpy.ndarray): A list containing the frames to be visualized.
+
+    Each frame is plotted as a separate subplot in a single figure. The x-axis represents
+    the sample index, and the y-axis represents the value of each sample in the frame.
+
+    """
+    fig, ax = plt.subplots(figsize=(12, 8))
+
+    ax.plot(frame)
+    ax.set_ylabel("Amplitude")
+    ax.set_xlabel("Time")
+    ax.set_xlim(0, len(frame))
+    ax.set_ylim(np.min(frame) - 0.025, np.max(frame) + 0.025)
+    ax.set_xticks([])
+    ax.set_xticklabels([])
+    ax.set_yticks([])
+    ax.set_yticklabels([])
+
+    # Remove top and right spines
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
 
     plt.tight_layout()
     plt.show()
 
 
 if __name__ == "__main__":
-    file_path = os.path.join("data", "frames_60s_S2", "training.h5")
-    with h5py.File(file_path, "r") as file:
-        stress_list = [dataset for dataset in file if file[dataset].attrs["label"] == 1]
-        print(len(stress_list))
+    # file_path = os.path.join("data", "frames_60s_S2", "training.h5")
+    # with h5py.File(file_path, "r") as file:
+    #     stress_list = [dataset for dataset in file if file[dataset].attrs["label"] == 1]
+    #     print(len(stress_list))
 
     # data = load_HDF5(file_path, 0)
     # visualize_frames([data[:3840], data[3840:4080], data[4080:]])
-    # file_path = os.path.join("data", "WESAD_preprocessed1", "S2", "S2.pkl")
+    with open(os.path.join("data", "WESAD", "S2", "S2.pkl"), "rb") as file:
+                data = pickle.load(file, encoding="latin1")
+    s2_data = data["signal"]["wrist"]["EDA"]
     # data = load_pkl(file_path, "EDA")
     # data1 = load_pkl(file_path, "BVP")
     # data2 = load_pkl(file_path, "TEMP")
-    # visualize_frames([data, data1, data2])
-    # print(data.shape)
-    # print(data1.shape)
-    # print(data2.shape)
+    visualize_frame_paper(s2_data[8300:8580])
+
 
     # sampling_freq = 64
     # filtered_data = butterworth_filter(bvp_data, cutoff_freq=4, sampling_freq=sampling_freq, order=4)

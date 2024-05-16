@@ -1,11 +1,13 @@
 import os
 import re
+import sys
 import itertools
 import h5py
 import keras
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.metrics import precision_recall_curve, roc_curve, auc, confusion_matrix, f1_score
+sys.path.append("src")
 from model_training.architectures import SliceLayer
 
 
