@@ -123,18 +123,16 @@ def visualize_frames(frames):
     for i, frame in enumerate(frames):
         ax = axes[i]
         ax.plot(frame)
-        ax.set_title("Blood Volume Pulse")
-        ax.set_xlabel("Time")
-        ax.set_ylabel("Amplitude")
+        ax.set_title(f"Frame {i+1}")
+        ax.set_xlabel("Sample Index")
+        ax.set_ylabel("Value")
+        ax.grid(True)
         ax.set_xlim(0, len(frame))
         ax.set_ylim(np.min(frame), np.max(frame))
-        ax.set_yticks([0])
-        ax.set_xticks([])
-        ax.set_xticklabels([])
 
 
-        plt.tight_layout()
-        plt.show()
+    plt.tight_layout()
+    plt.show()
 
 def visualize_frame_paper(frame):
     """
@@ -150,14 +148,14 @@ def visualize_frame_paper(frame):
     fig, ax = plt.subplots(figsize=(12, 8))
 
     ax.plot(frame)
-    ax.set_ylabel("Amplitude")
-    ax.set_xlabel("Time")
+    ax.set_ylabel("Amplitude", fontsize = 18)
+    ax.set_xlabel("Time [s]", fontsize = 18)
     ax.set_xlim(0, len(frame))
-    ax.set_ylim(np.min(frame) - 0.025, np.max(frame) + 0.025)
-    ax.set_xticks([])
-    ax.set_xticklabels([])
-    ax.set_yticks([])
-    ax.set_yticklabels([])
+    ax.set_ylim(np.min(frame) - 5, np.max(frame) + 5)
+    ax.set_xticks([0, 160])  # Set x-axis ticks at 0 and 70
+    ax.set_xticklabels(["0", "2.5"], fontsize = 14)  # Set labels for the ticks
+    ax.set_yticks([0])
+    ax.set_yticklabels(["0"], fontsize = 14)
 
     # Remove top and right spines
     ax.spines['top'].set_visible(False)
@@ -168,24 +166,9 @@ def visualize_frame_paper(frame):
 
 
 if __name__ == "__main__":
-    # file_path = os.path.join("data", "frames_60s_S2", "training.h5")
-    # with h5py.File(file_path, "r") as file:
-    #     stress_list = [dataset for dataset in file if file[dataset].attrs["label"] == 1]
-    #     print(len(stress_list))
+    pre_data = load_pkl("data/WESAD_preprocessed1/S2/S2.pkl", "EDA")
+    data = load_pkl("data/WESAD/S2/S2.pkl", "EDA")
 
-    # data = load_HDF5(file_path, 0)
-    # visualize_frames([data[:3840], data[3840:4080], data[4080:]])
-    with open(os.path.join("data", "WESAD", "S2", "S2.pkl"), "rb") as file:
-                data = pickle.load(file, encoding="latin1")
-    s2_data = data["signal"]["wrist"]["EDA"]
-    # data = load_pkl(file_path, "EDA")
-    # data1 = load_pkl(file_path, "BVP")
-    # data2 = load_pkl(file_path, "TEMP")
-    visualize_frame_paper(s2_data[8300:8580])
+    visualize_frames([pre_data, data])
 
 
-    # sampling_freq = 64
-    # filtered_data = butterworth_filter(bvp_data, cutoff_freq=4, sampling_freq=sampling_freq, order=4)
-    # freq, fft_data = fourier_analysis(bvp_data, sampling_freq)
-    # freq2, fft_data2 = fourier_analysis(filtered_data, sampling_freq)
-    # plot_data(bvp_data, filtered_data, freq, fft_data, freq2, fft_data2)
