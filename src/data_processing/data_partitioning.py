@@ -38,7 +38,7 @@ class DataPartitioner:
         """
         Utilizes multithreading to process all subjects from the WESAD dataset to create labeled frames for subsequent training, validation, and testing
         """
-        subjects = [subject for subject in os.listdir(self.data_path) if not subject.endswith(".pdf") or subject.endswith(".json")]
+        subjects = [subject for subject in os.listdir(self.data_path) if not (subject.endswith(".pdf") or subject.endswith(".json"))]
 
         frames_dir = os.path.join("data", f"frames_{self.loso_subject}_{self.window_seconds}")
         os.makedirs(frames_dir, exist_ok=True)
@@ -182,10 +182,10 @@ class DataPartitioner:
 
 
 if __name__ == "__main__":
-    subjects = ["S2", "S3", "S4", "S5", "S6"]
+    loso_subjects = ["S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10", "S11", "S13", "S15", "S16"]
     windows = [5, 30, 60, 90, 120]
 
-    for subject in subjects:
+    for loso_subject in loso_subjects:
         for window in windows:
             dataPartitioner = DataPartitioner(
                 data_path=os.path.join("data", "WESAD_preprocessed1"),
@@ -194,9 +194,9 @@ if __name__ == "__main__":
                 fs=[64, 4, 4],
                 window_seconds=window,
                 overlap_seconds=window - 0.25,
-                loso_subject=subject,
+                loso_subject=loso_subject,
                 train_val_split=0.7,
                 stress_multiplier=1,
-                functions_dict={"BVP": [lambda data: MinMaxScaler().fit_transform(data)], "EDA": [], "TEMP": []},
+                functions_dict={"BVP": [lambda data: MinMaxScaler().fit_transform(data)], "EDA": [lambda data: MinMaxScaler().fit_transform(data)], "TEMP": [lambda data: MinMaxScaler().fit_transform(data)]},
             )
             dataPartitioner.process_all_subjects()

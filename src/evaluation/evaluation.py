@@ -6,7 +6,7 @@ import h5py
 import keras
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.metrics import precision_recall_curve, roc_curve, auc, confusion_matrix, f1_score
+from sklearn.metrics import precision_recall_curve, roc_curve, auc, confusion_matrix, f1_score, accuracy_score
 sys.path.append("src")
 from model_training.architectures import SliceLayer
 
@@ -25,8 +25,8 @@ class ModelEvaluator:
         os.makedirs("plots", exist_ok=True)
         data_dict = {}
         for model_name in model_names:
-            loso_subject = model_name.split("_")[1]
-            window_size = model_name.split("_")[2]
+            loso_subject = model_name.split("_")[2]
+            window_size = model_name.split("_")[3].split(".")[0]
             model = keras.models.load_model(filepath=os.path.join("models", model_name), custom_objects={"SliceLayer": SliceLayer})
             data, data_labels = self._load_data(os.path.join("data", f"frames_{loso_subject}_{window_size}", "testing.h5"))
             preds = self._calculate_predictions(data, model)
@@ -67,7 +67,7 @@ class ModelEvaluator:
         preds = model.predict(x=data, verbose=1)
         return preds
 
-    def f1_score_table(self, data_dict):
+    def f1_score_table(self):
         """
         Calculate F1 scores for each model in the data dictionary and save them in a table.
 
@@ -76,19 +76,30 @@ class ModelEvaluator:
         """
         plt.figure(figsize=(8, 6))
         table_data = []
-        for model_name, data in data_dict.items():
+        for model_name, data in self.data_dict.items():
             labels = data["labels"]
             preds = data["preds"]
             f1 = f1_score(labels, np.round(preds))
-            table_data.append([model_name, f1])
+            accuracy = accuracy_score(labels, np.round(preds))
+            table_data.append([model_name, f1, accuracy])
+        
+        total_f1 = 0
+        total_accuracy = 0
+        for data in table_data:
+            total_f1 += data[1]
+            total_accuracy += data[2]
+        average_f1 = total_f1 / len(table_data)
+        average_accuracy = total_accuracy / len(table_data)
 
+        print(average_f1)
+        print(average_accuracy)
         plt.axis("tight")
         plt.axis("off")
-        plt.table(cellText=table_data, colLabels=["Model", "F1 Score"], loc="center", cellLoc="center", colWidths=[0.3, 0.3])
-        plt.savefig(os.path.join(self.plot_dir, "f1_scores.png"), dpi=300, bbox_inches="tight")
+        plt.table(cellText=table_data, colLabels=["Model", "F1 Score", "Accuracy"], loc="center", cellLoc="center", colWidths=[0.3, 0.3, 0.3])
+        plt.savefig(os.path.join("plots", "f1_scores.png"), dpi=300, bbox_inches="tight")
         plt.close()
 
-    def precision_recall_plot(self, data_dict):
+    def precision_recall_plot(self):
         """
         Generate precision-recall curves for each model in the data dictionary.
 
@@ -96,7 +107,7 @@ class ModelEvaluator:
             data_dict (dict): A dictionary containing model names as keys and data (labels and predictions) as values.
         """
         plt.figure(figsize=(8, 8))
-        for model_name, data in data_dict.items():
+        for model_name, data in self.data_dict.items():
             labels = data["labels"]
             preds = data["preds"]
             precisions, recalls, _ = precision_recall_curve(labels, preds)
@@ -109,9 +120,9 @@ class ModelEvaluator:
         plt.legend()
         plt.grid()
         plt.tight_layout()
-        plt.savefig(os.path.join(self.plot_dir, "precision_recall_curves.png"), dpi=300)
+        plt.savefig(os.path.join("plots", "precision_recall_curves.png"), dpi=300)
 
-    def auc_roc_plot(self, data_dict):
+    def auc_roc_plot(self):
         """
         Generate ROC curves for each model in the data dictionary.
 
@@ -119,7 +130,7 @@ class ModelEvaluator:
             data_dict (dict): A dictionary containing model names as keys and data (labels and predictions) as values.
         """
         plt.figure(figsize=(8, 8))
-        for model_name, data in data_dict.items():
+        for model_name, data in self.data_dict.items():
             labels = data["labels"]
             preds = data["preds"]
             fpr, tpr, _ = roc_curve(labels, preds)
@@ -132,16 +143,16 @@ class ModelEvaluator:
         plt.legend()
         plt.grid()
         plt.tight_layout()
-        plt.savefig(os.path.join(self.plot_dir, "roc_curves.png"), dpi=300)
+        plt.savefig(os.path.join("plots", "roc_curves.png"), dpi=300)
 
-    def confusion_matrix_plot(self, data_dict):
+    def confusion_matrix_plot(self):
         """
         Generate confusion matrices for each model in the data dictionary.
 
         Args:
             data_dict (dict): A dictionary containing model names as keys and data (labels and predictions) as values.
         """
-        for model_name, data in data_dict.items():
+        for model_name, data in self.data_dict.items():
             labels = data["labels"]
             preds = np.round(data["preds"])
             cm = confusion_matrix(labels, preds)
@@ -161,12 +172,12 @@ class ModelEvaluator:
             plt.tight_layout()
             plt.ylabel("True label")
             plt.xlabel("Predicted label")
-            plt.savefig(os.path.join(self.plot_dir, f"confusion_matrix_{model_name}.png"), dpi=300)
+            plt.savefig(os.path.join("plots", f"confusion_matrix_{model_name}.png"), dpi=300)
 
 
 if __name__ == "__main__":
-    evaluator = ModelEvaluator(model_names=[model_name for model_name in os.listdir("models") if re.search(r"v2", model_name)])
+    evaluator = ModelEvaluator(model_names=[model_name for model_name in os.listdir("models") if re.search(r"v2", model_name) and re.search(r"90", model_name)])
     evaluator.f1_score_table()
-    evaluator.precision_recall_plot()
-    evaluator.auc_roc_plot()
-    evaluator.confusion_matrix_plot()
+    # evaluator.precision_recall_plot()
+    # evaluator.auc_roc_plot()
+    # evaluator.confusion_matrix_plot()

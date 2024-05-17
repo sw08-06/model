@@ -106,22 +106,27 @@ class ModelTrainer:
 
 
 if __name__ == "__main__":
-    models = [model_v2, model_v4]
-    model_names = ["model_v2", "model_v4"]
-    subjects = ["S2", "S3", "S4", "S5", "S6"]
-    window_sizes = [5, 30, 60, 90, 120]
+    # models = [model_v2, model_v4]
+    # model_names = ["model_v2", "model_v4"]
+    # loso_subjects = ["S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10", "S11", "S13", "S15", "S16"]
+    # window_sizes = [5, 30, 60, 90, 120]
+
+    models = [model_v4]
+    model_names = ["model_v4"]
+    loso_subjects = ["S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10", "S11", "S13", "S15", "S16"]
+    window_sizes = [60, 90, 120]
 
     trainer = ModelTrainer(
         data_path=os.environ.get("DATA_PATH"),
         model_path=os.environ.get("MODEL_PATH"),
         models=models,
         model_names=model_names,
-        subjects=subjects,
+        subjects=loso_subjects,
         window_sizes=window_sizes,
     )
 
     for model, model_name in zip(models, model_names):
-        for subject in subjects:
+        for subject in loso_subjects:
             for window in window_sizes:
                 trainer.execute_training(
                     training_data_path=os.path.join(trainer.data_path, f"frames_{subject}_{window}", "training.h5"),

@@ -99,8 +99,8 @@ if __name__ == "__main__":
         fs=[64, 4, 4],
         functions_dict={
             "BVP": [],
-            "EDA": [lambda data: hampel(data, window_size=120, n_sigma=3.0).filtered_data[:, np.newaxis], lambda data: scaler.fit_transform(data[:, np.newaxis])],
-            "TEMP": [lambda data: scaler.fit_transform(data[:, np.newaxis])],
+            "EDA": [lambda data: hampel(data, window_size=120, n_sigma=3.0).filtered_data[:, np.newaxis]],
+            "TEMP": [],
         },
     )
 
