@@ -176,7 +176,7 @@ class ModelEvaluator:
 
 
 if __name__ == "__main__":
-    evaluator = ModelEvaluator(model_names=[model_name for model_name in os.listdir("models") if re.search(r"v2", model_name) and re.search(r"90", model_name)])
+    evaluator = ModelEvaluator(model_names=[model_name for model_name in os.listdir("models")if re.search(r"v2", model_name)])
     evaluator.f1_score_table()
     # evaluator.precision_recall_plot()
     # evaluator.auc_roc_plot()

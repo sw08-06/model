@@ -63,7 +63,7 @@ class ModelTrainer:
         """
 
         def _scheduler(epoch, learning_rate):
-            if epoch == 18 or epoch == 22:
+            if epoch == 20 or epoch == 27:
                 return learning_rate * 0.1
             else:
                 return learning_rate
@@ -106,16 +106,11 @@ class ModelTrainer:
 
 
 if __name__ == "__main__":
-    # models = [model_v2, model_v4]
-    # model_names = ["model_v2", "model_v4"]
-    # loso_subjects = ["S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10", "S11", "S13", "S15", "S16"]
-    # window_sizes = [5, 30, 60, 90, 120]
-
-    models = [model_v4]
-    model_names = ["model_v4"]
+    models = [model_v2, model_v4]
+    model_names = ["model_v2", "model_v4"]
     loso_subjects = ["S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10", "S11", "S13", "S15", "S16"]
-    window_sizes = [60, 90, 120]
-
+    window_sizes = [5, 30, 60, 90, 120]
+    
     trainer = ModelTrainer(
         data_path=os.environ.get("DATA_PATH"),
         model_path=os.environ.get("MODEL_PATH"),
@@ -134,5 +129,5 @@ if __name__ == "__main__":
                     model=model(window),
                     model_name=f"{model_name}_{subject}_{window}",
                     batch_size=64,
-                    num_epochs=25,
+                    num_epochs=32,
                 )

@@ -32,7 +32,7 @@ def load_pkl(file_path, data_type):
     Loads data of a specific data type from a specific subject.
 
     Args:
-        file_path (str): The path to the HDF5 file.
+        file_path (str): The path to the pkl file.
         data_type (str): The type of data.
 
     Returns:
@@ -134,6 +134,7 @@ def visualize_frames(frames):
     plt.tight_layout()
     plt.show()
 
+
 def visualize_frame_paper(frame):
     """
     Visualizes a list of frames.
@@ -166,9 +167,9 @@ def visualize_frame_paper(frame):
 
 
 if __name__ == "__main__":
-    pre_data = load_pkl("data/WESAD_preprocessed1/S2/S2.pkl", "EDA")
-    data = load_pkl("data/WESAD/S2/S2.pkl", "EDA")
-
-    visualize_frames([pre_data, data])
+    path = os.path.join("data", "WESAD_preprocessed1", "S2", "S2.pkl")
+    data = load_pkl(path, )
+    data2 = load_pkl(path, )
+    visualize_frames([data, data2])
 
 

@@ -196,7 +196,7 @@ if __name__ == "__main__":
                 overlap_seconds=window - 0.25,
                 loso_subject=loso_subject,
                 train_val_split=0.7,
-                stress_multiplier=1,
+                stress_multiplier=2,
                 functions_dict={"BVP": [lambda data: MinMaxScaler().fit_transform(data)], "EDA": [lambda data: MinMaxScaler().fit_transform(data)], "TEMP": [lambda data: MinMaxScaler().fit_transform(data)]},
             )
             dataPartitioner.process_all_subjects()
