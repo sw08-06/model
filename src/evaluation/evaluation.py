@@ -4,9 +4,11 @@ import sys
 import itertools
 import h5py
 import keras
+from tensorflow import lite
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.metrics import precision_recall_curve, roc_curve, auc, confusion_matrix, f1_score, accuracy_score
+
 sys.path.append("src")
 from model_training.architectures import SliceLayer
 
@@ -21,15 +23,18 @@ class ModelEvaluator:
         self.data_dict = self._create_data_dict(model_names)
 
     def _create_data_dict(self, model_names):
-        """ """
         os.makedirs("plots", exist_ok=True)
         data_dict = {}
         for model_name in model_names:
             loso_subject = model_name.split("_")[2]
             window_size = model_name.split("_")[3].split(".")[0]
-            model = keras.models.load_model(filepath=os.path.join("models", model_name), custom_objects={"SliceLayer": SliceLayer})
+            if model_name.split(".")[-1] == "tflite":
+                is_compressed = True
+            else:
+                model = keras.models.load_model(filepath=os.path.join("models", model_name), custom_objects={"SliceLayer": SliceLayer})
+                is_compressed = False
             data, data_labels = self._load_data(os.path.join("data", f"frames_{loso_subject}_{window_size}", "testing.h5"))
-            preds = self._calculate_predictions(data, model)
+            preds = self._calculate_predictions(data, model, model_name, is_compressed)
             data_dict[model_name] = {"labels": data_labels, "preds": preds}
         return data_dict
 
@@ -53,18 +58,37 @@ class ModelEvaluator:
                 labels.append(file[dataset].attrs["label"])
         return np.array(data), np.array(labels)[:, np.newaxis]
 
-    def _calculate_predictions(self, data, model):
+    def _calculate_predictions(self, data, model, model_name, is_compressed):
         """
         Calculate predictions using the provided model.
 
         Args:
             data (np.array): Input data.
             model (keras.Model): Trained model.
+            model_name (str): Name of the model.
+            is_compressed (boolean): If the model is a tflite model or not.
 
         Returns:
             np.array: Predictions.
         """
-        preds = model.predict(x=data, verbose=1)
+        if is_compressed:
+            preds = []
+            for dataset in data:
+                interpreter = lite.Interpreter(model_path=os.path.join("models_compressed", model_name))
+                interpreter.allocate_tensors()
+
+                input_details = interpreter.get_input_details()
+                output_details = interpreter.get_output_details()
+
+                input_data = dataset.astype(np.float32)
+                input_data = np.expand_dims(input_data, axis=0)
+
+                interpreter.set_tensor(input_details["index"], input_data)
+
+                interpreter.invoke()
+                preds.append(interpreter.get_tensor(output_details["index"]).ravel())
+        else:
+            preds = model.predict(x=data, verbose=1)
         return preds
 
     def f1_score_table(self):
@@ -82,7 +106,7 @@ class ModelEvaluator:
             f1 = f1_score(labels, np.round(preds))
             accuracy = accuracy_score(labels, np.round(preds))
             table_data.append([model_name, f1, accuracy])
-        
+
         total_f1 = 0
         total_accuracy = 0
         for data in table_data:
@@ -176,7 +200,7 @@ class ModelEvaluator:
 
 
 if __name__ == "__main__":
-    evaluator = ModelEvaluator(model_names=[model_name for model_name in os.listdir("models")if re.search(r"v2", model_name)])
+    evaluator = ModelEvaluator(model_names=[model_name for model_name in os.listdir("models_compressed")])
     evaluator.f1_score_table()
     # evaluator.precision_recall_plot()
     # evaluator.auc_roc_plot()
