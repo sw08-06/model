@@ -20,4 +20,4 @@ def compress_model(model_name):
 
 
 if __name__ == "__main__":
-    compress_model("model_v4_S4_120.keras")
+    compress_model("model_v4_S4_120")
